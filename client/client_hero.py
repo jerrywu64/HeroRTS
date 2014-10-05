@@ -1,7 +1,7 @@
 import math, pygame, sys
 sys.path.append("../server")
 
-from draw import draw_bg, draw_walls, draw_hero, draw_units, draw_bullets, draw_letterbox
+from draw import draw_bg, draw_waypoints, draw_walls, draw_hero, draw_units, draw_bullets, draw_letterbox
 from hero import Hero
 from character import Character
 from transform import Transform
@@ -105,5 +105,6 @@ class ClientHero(Character):
         draw_walls(self.screen, self.t, game_map)
         draw_hero(self.screen, self.t, game_map)
         draw_units(self.screen, self.t, game_map)
+        draw_waypoints(self.screen, self.t, game_map)
         draw_bullets(self.screen, self.t, game_map)
         draw_letterbox(self.screen, self.t)

@@ -87,6 +87,21 @@ def draw_units(screen, t, game_map):
                          t.transform_coord((unit.location[0]+orient_delta_x,
                                             unit.location[1]+orient_delta_y)), 3)
 
+WAYPOINT_SIZE = 0.25
+def draw_waypoints(screen, t, game_map):
+    """
+    screen: PyGame surface
+    t: Transform
+    game_map: Game map info
+    """
+    for waypoint in game_map.commander.waypoints:
+        pygame.draw.line(screen, (200, 150, 0),
+                         t.transform_coord((waypoint[0]-WAYPOINT_SIZE, waypoint[1]-WAYPOINT_SIZE)),
+                         t.transform_coord((waypoint[0]+WAYPOINT_SIZE, waypoint[1]+WAYPOINT_SIZE)), 7)
+        pygame.draw.line(screen, (200, 150, 0),
+                         t.transform_coord((waypoint[0]-WAYPOINT_SIZE, waypoint[1]+WAYPOINT_SIZE)),
+                         t.transform_coord((waypoint[0]+WAYPOINT_SIZE, waypoint[1]-WAYPOINT_SIZE)), 7)
+
 def draw_bullets(screen, t, game_map):
     """
     screen: PyGame surface

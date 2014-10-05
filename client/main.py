@@ -78,6 +78,8 @@ def main_loop():
             if event.type == pygame.QUIT: sys.exit()
             if event.type == pygame.KEYDOWN or event.type == pygame.KEYUP:
                 character.key_control(event.key, event.type)
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                character.click_control(event.pos, event.button)
         character.mouse_control(pygame.mouse.get_pos())
 
     # Clear screen
@@ -117,7 +119,10 @@ def main_loop():
                 "fired": character.fired,
             }))
         else:
-            prot.sendMessage(json.dumps({"message_type": "update"}))
+            prot.sendMessage(json.dumps({
+                "message_type": "update",
+                "waypoints": character.server_commander.waypoints
+            }))
         if mode == "hero" and character.fired:
             character.fired = False
 

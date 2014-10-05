@@ -62,8 +62,7 @@ class GameProtocol(protocol.Protocol):
                     b = hero.make_bullet(game_map)
                     game_map.bullets.append(b)
             elif self.client_type == "commander":
-                # TODO
-                pass
+                commander.waypoints = json_data["waypoints"]
 
             # Respond with everything
             self.transport.write(json.dumps({

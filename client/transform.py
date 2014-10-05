@@ -53,6 +53,19 @@ class Transform(object):
                 int((delta_y / float(game_height))*self.surface_real_height()
                     + self.surface_height_offset()))
 
+    def inv_transform_coord(self, screen_coord):
+        """
+        Transform the given screen coord into game coords.
+        """
+        game_width = self.viewport[3] - self.viewport[2] # right - left
+        game_height = self.viewport[1] - self.viewport[0] # bottom - top
+        delta_x = ((screen_coord[0] - self.surface_width_offset())/
+                   self.surface_real_width()*(game_width))
+        delta_y = ((screen_coord[1] - self.surface_height_offset())/
+                   self.surface_real_height()*(game_height))
+        return (delta_x + self.viewport[2], delta_y + self.viewport[0])
+        
+
     def transform_width(self, width):
         game_width = self.viewport[3] - self.viewport[2]
         return int((width/float(game_width))*self.surface_real_width())
