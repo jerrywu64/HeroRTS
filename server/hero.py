@@ -4,7 +4,7 @@ from bullet import Bullet
 from util import dist
 
 class Hero:
-    def __init__(self, hp, x, y, th):  # the commander screen's start coordinates (top left?) and orientation
+    def __init__(self, hp, x, y, th, dead=False):  # the commander screen's start coordinates (top left?) and orientation
         self.location = [x, y]
         self.hp = hp
         self.orientation = th # Positive-x-axis, going ccw, in range [0, 2pi).
@@ -15,25 +15,29 @@ class Hero:
         self.fov_radius = 10
         self.radius = 0.3 # The hero is a circle?
         self.speed = 0.03 # squares per tick
+        self.dead = dead
 
     def dictify(self):
-        return {"location": self.location,
+        return {"type": "hero",
+                "location": self.location,
                 "hp": self.hp,
                 "orientation": self.orientation,
                 "fov_angle": self.fov_angle,
                 "fov_radius": self.fov_radius,
                 "radius": self.radius,
                 "speed": self.speed,
-                "type": "hero"}
+                "dead": self.dead}
 
     @classmethod
     def from_dict(cls, d):
-        return cls(d["hp"], d["location"][0], d["location"][1], d["orientation"])
+        return cls(d["hp"], d["location"][0], d["location"][1],
+                   d["orientation"], d["dead"])
 
     def update_from_dict(self, d):
         self.hp = d["hp"]
         self.location = d["location"]
         self.orientation = d["orientation"]
+        self.dead = d["dead"]
 
     def visible(self, x, y, gmap):  # returns if the grid-square (x, y) is visible.
         # Check if the point is in the field of view:

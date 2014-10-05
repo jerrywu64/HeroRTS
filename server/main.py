@@ -109,9 +109,17 @@ def main_loop():
             if out == -1:
                 hero.hp -= b.damage
                 print "Hero hit", hero.hp
+                if hero.hp <= 0:
+                    hero.dead = True
+                    print "HERO DEAD! D:"
             else:
                 game_map.units[out].hp -= b.damage
                 print "Unit hit", out, game_map.units[out].hp
+                if game_map.units[out].hp <= 0:
+                    print "Unit dead!"
+                    # Remove the unit
+                    game_map.units[out], game_map.units[-1] = game_map.units[-1], game_map.units[out]
+                    game_map.units = game_map.units[:-1]
         else:
             new_bullets.append(b)
     game_map.bullets = new_bullets

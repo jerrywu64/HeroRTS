@@ -26,6 +26,7 @@ class ClientHero(Character):
         self.vel = (0, 0)
         self.firing = False
         self.fired = False
+        self.font = pygame.font.SysFont("monospace", 24)
 
     def key_control(self, key, event):
         Character.key_control(self, key, event)
@@ -91,6 +92,14 @@ class ClientHero(Character):
             game_map.bullets.append(self.server_hero.make_bullet(game_map))
 
     def draw(self, game_map):
+        if self.server_hero.dead:
+            # Death!!
+            self.screen.fill((230, 0, 0))
+            label = self.font.render("Whoops. Ate too many bullets. Nom.", 1, (100, 0, 0))
+            self.screen.blit(label, ((self.screen.get_width()-label.get_width())/2.0,
+                                     self.screen.get_height()/2.0))
+            return
+
         self.t.update_viewport((self.loc[1] - ClientHero.VIEW_SQ_RADIUS,
                                 self.loc[1] + ClientHero.VIEW_SQ_RADIUS,
                                 self.loc[0] - ClientHero.VIEW_SQ_RADIUS,
