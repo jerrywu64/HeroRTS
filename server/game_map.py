@@ -31,6 +31,7 @@ class GameMap:
         self.cols = cols
         self.people = people
         self.walls = []
+        self.map_inp = map
         for c in xrange(cols):
             self.walls.append([])
             for r in xrange(rows):

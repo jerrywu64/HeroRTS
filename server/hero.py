@@ -14,7 +14,21 @@ class Hero:
         self.fov_radius = 10
         self.radius = 0.3 # The hero is a circle?
         self.speed = 0.03 # squares per tick
-        
+
+    def dictify(self):
+        return {"location": self.location,
+                "hp": self.hp,
+                "orientation": self.orientation,
+                "fov_angle": self.fov_angle,
+                "fov_radius": self.fov_radius,
+                "radius": self.radius,
+                "speed": self.speed,
+                "type": "hero"}
+
+    @classmethod
+    def from_dict(cls, d):
+        return cls(d.hp, d.location[0], d.location[1], d.orientation)
+
     def visible(self, x, y, gmap):  # returns if the grid-square (x, y) is visible.
         # Check if the point is in the field of view:
         if dist(x, y, self.location[0], self.location[1]) > self.fov_radius:

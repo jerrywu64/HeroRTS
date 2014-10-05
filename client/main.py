@@ -10,14 +10,34 @@ from client_hero import ClientHero
 
 # Global client settings
 character = None
+game_map = None
 prot = None
+recvd_hello = False
 
 class GameClientProtocol(protocol.Protocol):
     def dataRecieved(self, data):
-        # print data
-        pass
+        print "dataReceived", data
+        json_data = json.loads(data)
+        if json_data["message_type"] == "hello":
+            global recvd_hello
+            recvd_hello = True
+            people = []
+            for p in json_data["people"]:
+                if p["type"] == "hero":
+                    people.append(Hero.from_dict(p))
+                elif p["type"] == "unit":
+                    people.append(Unit.from_dict(p))
+                else:
+                    raise Exception("Unknown person type")
+            global game_map
+            game_map = GameMap(json_data["rows"], json_data["cols"],
+                               json_data["map"], people)
+        elif json_data["message_type"] == "update":
+            # TODO
+            pass
 
     def sendMessage(self, msg):
+        print "sendMessage"
         self.transport.write(msg + "\n")
 
 class GameClientProtocolFactory(protocol.Factory):
@@ -43,19 +63,31 @@ def main_loop():
 
     # Clear screen
     screen.fill((255, 255, 255))
-    character.update(game_map)
-    character.draw(game_map)
+    if game_map is not None:
+        character.update(game_map)
+        character.draw(game_map)
+    else:
+        # Loading...
+        pass
 
     # Swap buffers to push display
     pygame.display.flip()
 
     # Send data
     if prot is not None:
-        prot.sendMessage(json.dumps({
-            "location": character.loc,
-            "orientation": character.orientation,
-            "fired": False
-        }))
+        if game_map is None:
+            if not recvd_hello:
+                global recvd_hello
+                recvd_hello = True
+                prot.sendMessage(json.dumps({
+                    "message_type": "map_request"}))
+        else:
+            prot.sendMessage(json.dumps({
+                "message_type": "update",
+                "location": character.loc,
+                "orientation": character.orientation,
+                "fired": False
+            }))
 
 if __name__ == "__main__":
     pygame.init()
@@ -63,28 +95,6 @@ if __name__ == "__main__":
     screen = pygame.display.set_mode((620,480))
     server_hero = Hero(10, 11.0, 11.0, math.pi/2.0)
     character = ClientHero(screen, server_hero)
-    game_map = GameMap(20, 20, [
-        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-        1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 0, 1,
-        1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1,
-        1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1,
-        1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1,
-        1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1,
-        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-        1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1,
-        1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1,
-        1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1,
-        1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1,
-        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1
-        ], [Unit(10, 1.5, 1.5, 0)])
 
     reactor.connectTCP("localhost", 9999, GameClientProtocolFactory())
     tick = task.LoopingCall(main_loop)
