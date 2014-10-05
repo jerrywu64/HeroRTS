@@ -3,6 +3,8 @@ import math
 from util import dist
 
 class Unit:
+    CHARACTER_RADIUS = 0.25
+    CHARACTER_BORDER = 0.10
     def __init__(self, hp, x, y, th):
         self.location = [x, y]
         self.hp = hp

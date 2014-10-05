@@ -111,7 +111,7 @@ def main_loop():
                 print "Hero hit", hero.hp
             else:
                 game_map.units[out].hp -= b.damage
-                print "Unit hit", out, game_map.units[out]
+                print "Unit hit", out, game_map.units[out].hp
         else:
             new_bullets.append(b)
     game_map.bullets = new_bullets

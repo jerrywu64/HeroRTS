@@ -1,6 +1,7 @@
 import math, pygame, sys
 sys.path.append("../server")
 
+from draw import draw_walls, draw_hero, draw_units, draw_bullets, draw_letterbox
 from hero import Hero
 from character import Character
 from transform import Transform
@@ -100,83 +101,8 @@ class ClientHero(Character):
                                      self.t.surface_real_width(),
                                      self.t.surface_real_height()))
 
-        # Draw map
-        pygame.draw.rect(self.screen, (180, 180, 180),
-                         pygame.Rect(
-                             self.t.transform_coord((0,0)),
-                             (self.t.transform_width(len(game_map.walls)),
-                              self.t.transform_height(len(game_map.walls[0])))))
-        for i, col in enumerate(game_map.walls):
-            for j, wall in enumerate(col):
-                if wall == 0: continue
-                pygame.draw.rect(self.screen, (50, 50, 50),
-                                 pygame.Rect(
-                                     self.t.transform_coord((i, j)),
-                                     (self.t.transform_width(1),
-                                      self.t.transform_height(1))))
-                pygame.draw.rect(self.screen, (30, 30, 30),
-                                 pygame.Rect(
-                                     self.t.transform_coord((i, j)),
-                                     (self.t.transform_width(1),
-                                      self.t.transform_height(1))), 3)
-
-        # Character border
-        pygame.draw.circle(self.screen, (100, 0, 0), 
-                           self.t.transform_coord(self.loc),
-                           self.t.transform_width(ClientHero.CHARACTER_RADIUS
-                                                  + ClientHero.CHARACTER_BORDER),
-                           0)
-        # Character fill
-        pygame.draw.circle(self.screen, (200, 0, 0), 
-                           self.t.transform_coord(self.loc),
-                           self.t.transform_width(ClientHero.CHARACTER_RADIUS),
-                           0)
-        # Character orientation
-        orient_delta_x = math.cos(self.orientation)*ClientHero.CHARACTER_RADIUS
-        orient_delta_y = -math.sin(self.orientation)*ClientHero.CHARACTER_RADIUS
-        pygame.draw.line(self.screen, (100, 0, 0),
-                         self.t.transform_coord(self.loc),
-                         self.t.transform_coord((self.loc[0]+orient_delta_x,
-                                                 self.loc[1]+orient_delta_y)), 3)
-
-        # Draw units
-        for unit in game_map.units:
-            # Unit border
-            pygame.draw.circle(self.screen, (0, 100, 100), 
-                               self.t.transform_coord(unit.location),
-                               self.t.transform_width(ClientHero.CHARACTER_RADIUS
-                                                      + ClientHero.CHARACTER_BORDER),
-                               0)
-            # Unit fill
-            pygame.draw.circle(self.screen, (0, 200, 200), 
-                               self.t.transform_coord(unit.location),
-                               self.t.transform_width(ClientHero.CHARACTER_RADIUS),
-                               0)
-            # Unit orientation
-            orient_delta_x = math.cos(unit.orientation)*ClientHero.CHARACTER_RADIUS
-            orient_delta_y = -math.sin(unit.orientation)*ClientHero.CHARACTER_RADIUS
-            pygame.draw.line(self.screen, (0, 100, 100),
-                             self.t.transform_coord(unit.location),
-                             self.t.transform_coord((unit.location[0]+orient_delta_x,
-                                                     unit.location[1]+orient_delta_y)), 3)
-
-        # Letterbox - left
-        pygame.draw.rect(self.screen, (0, 0, 0),
-                         pygame.Rect(0, 0,
-                                     self.t.surface_width_offset(),
-                                     self.screen.get_height()))
-        # Letterbox - right
-        pygame.draw.rect(self.screen, (0, 0, 0),
-                         pygame.Rect(self.screen.get_width() - self.t.surface_width_offset(), 0,
-                                     self.t.surface_width_offset(),
-                                     self.screen.get_height()))
-        # Letterbox - top
-        pygame.draw.rect(self.screen, (0, 0, 0),
-                         pygame.Rect(0, 0,
-                                     self.screen.get_width(),
-                                     self.t.surface_height_offset()))
-        # Letterbox - bottom
-        pygame.draw.rect(self.screen, (0, 0, 0),
-                         pygame.Rect(0, self.screen.get_height() - self.t.surface_height_offset(),
-                                     self.screen.get_width(),
-                                     self.t.surface_height_offset()))
+        draw_walls(self.screen, self.t, game_map)
+        draw_hero(self.screen, self.t, game_map, self)
+        draw_units(self.screen, self.t, game_map)
+        draw_bullets(self.screen, self.t, game_map)
+        draw_letterbox(self.screen, self.t)
