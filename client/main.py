@@ -75,7 +75,7 @@ def main_loop():
     global character
     if character is not None:
         for event in pygame.event.get():
-            if event.type == pygame.QUIT: sys.exit()
+            if event.type == pygame.QUIT: reactor.stop()
             if event.type == pygame.KEYDOWN or event.type == pygame.KEYUP:
                 character.key_control(event.key, event.type)
             if event.type == pygame.MOUSEBUTTONDOWN:
