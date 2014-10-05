@@ -38,9 +38,9 @@ class Hero:
             return False
         return True
         
-    def move(self, direction, map):  # direction is a number from 0 to 7, starting positive-x and going ccw.
-        self.location[0] += math.cos(direction * math.pi / 4) * self.speed
-        self.location[1] += math.sin(direction * math.pi / 4) * self.speed
+    def move(self, direction, map):  # direction is a number from 0 to 7, starting positive-x and going ccw, relative to your orientation.
+        self.location[0] += math.cos(direction * math.pi / 4 + orientation) * self.speed
+        self.location[1] += math.sin(direction * math.pi / 4 + orientation) * self.speed
         fracx, floorx = math.modf(self.location[0])
         fracy, floory = math.modf(self.location[1])
         # Collision check, orthogonal walls
