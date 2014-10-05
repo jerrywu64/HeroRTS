@@ -125,6 +125,29 @@ class ClientHero(Character):
                          self.t.transform_coord((self.loc[0]+orient_delta_x,
                                                  self.loc[1]+orient_delta_y)), 3)
 
+        # Draw units
+        for unit in game_map.people:
+            # Skip the hero
+            if isinstance(unit, ClientHero): continue
+            # Unit border
+            pygame.draw.circle(self.screen, (0, 100, 100), 
+                               self.t.transform_coord(unit.location),
+                               self.t.transform_width(ClientHero.CHARACTER_RADIUS
+                                                      + ClientHero.CHARACTER_BORDER),
+                               0)
+            # Unit fill
+            pygame.draw.circle(self.screen, (0, 200, 200), 
+                               self.t.transform_coord(unit.location),
+                               self.t.transform_width(ClientHero.CHARACTER_RADIUS),
+                               0)
+            # Unit orientation
+            orient_delta_x = math.cos(unit.orientation)*ClientHero.CHARACTER_RADIUS
+            orient_delta_y = -math.sin(unit.orientation)*ClientHero.CHARACTER_RADIUS
+            pygame.draw.line(self.screen, (0, 100, 100),
+                             self.t.transform_coord(unit.location),
+                             self.t.transform_coord((unit.location[0]+orient_delta_x,
+                                                     unit.location[1]+orient_delta_y)), 3)
+
         # Letterbox - left
         pygame.draw.rect(self.screen, (0, 0, 0),
                          pygame.Rect(0, 0,

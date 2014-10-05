@@ -3,6 +3,7 @@ import math, pygame, sys
 sys.path.append("../server")
 from game_map import GameMap
 from hero import Hero
+from unit import Unit
 from client_hero import ClientHero
 
 # Global client settings
@@ -35,7 +36,7 @@ if __name__ == "__main__":
         1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
         1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
         1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1
-        ], [])
+        ], [Unit(10, 1.5, 1.5, 0)])
     while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT: sys.exit()
