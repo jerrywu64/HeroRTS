@@ -1,3 +1,8 @@
+import math
+
+def dist(x1, y1, x2, y2):
+    return math.sqrt((x1-x2)*(x1-x2)+(y1-y2)*(y1-y2))
+
 class Hero:
     def __init__(self, hp, x, y, th):  # the commander screen's start coordinates (top left?) and orientation
         self.location = [x, y]
@@ -9,9 +14,6 @@ class Hero:
         self.fov_radius = 10
         self.radius = 0.3 # The hero is a circle?
         self.speed = 0.06 # squares per tick
-        
-    def dist(x1, y1, x2, y2):
-        return math.sqrt((x1-x2)*(x1-x2)+(y1-y2)*(y1-y2))
         
     def visible(self, x, y, gmap):  # returns if the grid-square (x, y) is visible.
         # Check if the point is in the field of view:
@@ -38,39 +40,42 @@ class Hero:
             return False
         return True
         
-    def move(self, direction, map):  # direction is a number from 0 to 7, starting positive-x and going ccw, relative to your orientation.
-        self.location[0] += math.cos(direction * math.pi / 4 + orientation) * self.speed
-        self.location[1] += math.sin(direction * math.pi / 4 + orientation) * self.speed
+    def move(self, direction, gmap):  # direction is a number from 0 to 7, starting positive-x and going ccw, relative to your orientation.
+        self.location[0] += math.cos(direction * math.pi / 4 + self.orientation) * self.speed
+        # Negative, because our coordinate system is the wrong handedness
+        self.location[1] -= math.sin(direction * math.pi / 4 + self.orientation) * self.speed
         fracx, floorx = math.modf(self.location[0])
         fracy, floory = math.modf(self.location[1])
+        ifloorx = int(floorx)
+        ifloory = int(floory)
         # Collision check, orthogonal walls
-        if fracx < self.radius:
-            if floorx == 0 or gmap[floorx - 1][floory] == 1:
+        if fracx < self.radius: # Into left square
+            if gmap.walls[ifloorx - 1][ifloory] == 1:
                 self.location[0] += self.radius - fracx
-        if 1 - fracx < self.radius:
-            if floorx == gmap.cols - 1 or gmap[floorx + 1][floory] == 1:
+        if 1 - fracx < self.radius: # Into right square
+            if gmap.walls[ifloorx + 1][ifloory] == 1:
                 self.location[0] -= self.radius + fracx - 1
-        if fracy < self.radius:
-            if floory == 0 or gmap[floorx][floory - 1] == 1:
+        if fracy < self.radius: # Into top square
+            if gmap.walls[ifloorx][ifloory - 1] == 1:
                 self.location[1] += self.radius - fracy
-        if 1 - fracy < self.radius:
-            if floory = gmap.rows - 1 or gmap[floorx][floory + 1] == 1:
+        if 1 - fracy < self.radius: # Into bottom square
+            if gmap.walls[ifloorx][ifloory + 1] == 1:
                 self.location[1] -= self.radius + fracy - 1
         # Collision check, corners
         d = dist(floorx, floory, self.location[0], self.location[1])
-        if d < self.radius:
+        if d < self.radius and gmap.walls[ifloorx-1][ifloory-1]:
             self.location[0] += fracx * (self.radius / d - 1)
             self.location[1] += fracy * (self.radius / d - 1)
         d = dist(floorx + 1, floory, self.location[0], self.location[1])
-        if d < self.radius:
+        if d < self.radius and gmap.walls[ifloorx+1][ifloory-1]:
             self.location[0] -= (1 - fracx) * (self.radius / d - 1)
             self.location[1] += fracy * (self.radius / d - 1)
         d = dist(floorx, floory + 1, self.location[0], self.location[1])
-        if d < self.radius:
+        if d < self.radius and gmap.walls[ifloorx-1][ifloory+1]:
             self.location[0] += fracx * (self.radius / d - 1)
             self.location[1] -= (1 - fracy) * (self.radius / d - 1)
         d = dist(floorx + 1, floory + 1, self.location[0], self.location[1])
-        if d < self.radius:
+        if d < self.radius and gmap.walls[ifloorx+1][ifloory+1]:
             self.location[0] -= (1 - fracx) * (self.radius / d - 1)
             self.location[1] -= (1 - fracy) * (self.radius / d - 1)
         
