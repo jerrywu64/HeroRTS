@@ -11,8 +11,9 @@ from bullet import Bullet
 from random import random
 
 # Global flags for main loop
-running = False
 done = False
+hero_connected = False
+commander_connected = False
 
 # Global game map
 game_map = None
@@ -22,10 +23,7 @@ commander = None
 class GameProtocol(protocol.Protocol):
     def connectionMade(self):
         print "Connection made!"
-        global running
-        running = True
-        # FIXME: Assumes hero for now
-        self.client_type = "hero"
+        self.client_type = None
 
     def connectionLost(self, reason):
         global running, done
@@ -35,9 +33,17 @@ class GameProtocol(protocol.Protocol):
     def dataReceived(self, data):
         json_data = json.loads(data)
         if json_data["message_type"] == "map_request":
+            self.client_type = json_data["mode"]
+            if self.client_type == "hero":
+                global hero_connected
+                hero_connected = True
+            else:
+                global commander_connected
+                commander_connected = True
             print "map_request recvd!"
             self.transport.write(json.dumps({
                 "message_type": "hello",
+                "running": commander_connected and hero_connected,
                 "map": game_map.map_inp,
                 "rows": game_map.rows,
                 "cols": game_map.cols,
@@ -47,15 +53,22 @@ class GameProtocol(protocol.Protocol):
                 "bullets": [b.dictify() for b in game_map.bullets]
             }) + "\n")
         elif json_data["message_type"] == "update":
-            hero.location = json_data["location"]
-            hero.orientation = json_data["orientation"]
-            if json_data["fired"]:
-                b = hero.make_bullet(game_map)
-                game_map.bullets.append(b)
+            if self.client_type is None:
+                self.transport.loseConnection()
+            elif self.client_type == "hero":
+                hero.location = json_data["location"]
+                hero.orientation = json_data["orientation"]
+                if json_data["fired"]:
+                    b = hero.make_bullet(game_map)
+                    game_map.bullets.append(b)
+            elif self.client_type == "commander":
+                # TODO
+                pass
 
             # Respond with everything
             self.transport.write(json.dumps({
                 "message_type": "update",
+                "running": commander_connected and hero_connected,
                 "hero": game_map.hero.dictify(),
                 "commander": game_map.commander.dictify(),
                 "units": [u.dictify() for u in game_map.units],
@@ -105,7 +118,7 @@ def main_loop():
         tick.stop()
         print "Done"
         return
-    if not running: return
+    if not hero_connected or not commander_connected: return
 
     # Update state
     global game_map

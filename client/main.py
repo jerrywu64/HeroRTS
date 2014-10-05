@@ -20,7 +20,9 @@ prot = None
 class GameClientProtocol(protocol.Protocol):
     def connectionMade(self):
         self.sendMessage(json.dumps({
-            "message_type": "map_request"}))
+            "message_type": "map_request",
+            "mode": mode
+        }))
     
     def dataReceived(self, data):
         # print "dataReceived", data
@@ -66,7 +68,6 @@ class GameClientProtocolFactory(protocol.Factory):
         print "connection failed"
 
 def main_loop():
-    print "main_loop", game_map
     global character
     if character is not None:
         for event in pygame.event.get():
@@ -111,6 +112,8 @@ def main_loop():
                 "orientation": character.server_hero.orientation,
                 "fired": character.fired,
             }))
+        else:
+            prot.sendMessage(json.dumps({"message_type": "update"}))
         if mode == "hero" and character.fired:
             character.fired = False
 
