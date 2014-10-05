@@ -15,6 +15,8 @@ class Unit:
         self.radius = 0.3
         self.speed = 0.015
         self.type = type # 0 if allied, 1 or 2 otherwise
+        if type == 2:
+            self.speed = 0.035
         self.state = 0
 
     def dictify(self):
@@ -37,30 +39,42 @@ class Unit:
     def make_bullet(self, gmap):
         bdam = 1
         bspd = 0.05
-        brad = 0.07 # radius
+        brad = 0.06 # radius
         targetx, targety = self.location
         targetx += (self.radius + brad) * math.cos(self.orientation)
         targety -= (self.radius + brad) * math.sin(self.orientation)
         if gmap.walls[int(targetx)][int(targety)] == 0: # can't make a bullet in a wall
             return Bullet(bdam, targetx, targety, math.cos(self.orientation) * bspd, -math.sin(self.orientation) * bspd, brad)
+        return None
         # maybe later: don't allow bullets to be made that overlap with the walls
     
     def ai(self, game_map):
         hero = game_map.hero
         if self.type == 0:
             return
-        if self.type >= 1:
+        if self.type == 1:
             self.turn((incline(self.location[0], self.location[1], hero.location[0], hero.location[1]) - self.orientation) * 1.9)
-            if self.state % 60 == 0: self.fire(game_map)
-            self.move(0, game_map)
+            if self.state % 12 == 0: self.fire(game_map)
+            self.move(int((self.orientation + 2 * math.pi) / (math.pi / 4)), game_map)
+            self.state += 1
+        if self.type >= 2:
+            self.turn((incline(self.location[0], self.location[1], hero.location[0], hero.location[1]) - self.orientation) * 1.9)
+            if self.state % 30 == 0: self.fire(game_map)
+            self.move(int((self.orientation + 2 * math.pi) / (math.pi / 4)), game_map)
             self.state += 1
         
     
     def turn(self, angle):
         self.orientation += angle
+        self.orientation = self.orientation
+        while self.orientation < -math.pi:
+            self.orientation += 2 * math.pi
+        while self.orientation > math.pi:
+            self.orientation -= 2 * math.pi
     
     def fire(self, gmap):
-        gmap.bullets.append(self.make_bullet(gmap))
+        b = self.make_bullet(gmap)
+        if b is not None: gmap.bullets.append(b)
     
     # Returns True if move caused the person to actually change positions, False otherwise.
     def move(self, direction, gmap):  # direction is a number from 0 to 7, starting positive-x and going ccw, relative to your orientation.

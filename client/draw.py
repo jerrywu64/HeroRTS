@@ -93,6 +93,7 @@ def draw_bullets(screen, t, game_map):
     t: Transform
     game_map: Game map info
     """
+    # print len(game_map.bullets)
     # Draw units
     for b in game_map.bullets:
         # Unit fill

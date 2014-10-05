@@ -40,10 +40,14 @@ class GameClientProtocol(protocol.Protocol):
             # Drop any removed units/bullets, then update values for remaining
             if len(game_map.units) > len(json_data["units"]):
                 game_map.units = game_map.units[:len(json_data["units"])]
+            for i in xrange(len(json_data["units"]) - len(game_map.units)):
+                game_map.units.append(Unit(1, 1999, 1999, 0, 0))
             for u_old, u_new in zip(game_map.units, json_data["units"]):
                 u_old.update_from_dict(u_new)
             if len(game_map.bullets) > len(json_data["bullets"]):
                 game_map.bullets = game_map.bullets[:len(json_data["bullets"])]
+            for i in xrange(len(json_data["bullets"]) - len(game_map.bullets)):
+                game_map.bullets.append(Bullet(0, 999, 999, 0, 0))
             for b_old, b_new in zip(game_map.bullets, json_data["bullets"]):
                 b_old.update_from_dict(b_new)
             game_map.hero.update_from_dict(json_data["hero"])

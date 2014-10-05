@@ -39,19 +39,19 @@ class Bullet:
         ifloory = int(floory)
         # Wall collisions (Adjustments are doubled since it's a reflection)
         if fracx < self.radius: # Into left square
-            if gmap.walls[ifloorx - 1][ifloory] == 1:
+            if ifloorx <= 0 or gmap.walls[ifloorx - 1][ifloory] == 1:
                 self.location[0] += 2 * (self.radius - fracx)
                 self.velocity[0] *= -1
         if 1 - fracx < self.radius: # Into right square
-            if gmap.walls[ifloorx + 1][ifloory] == 1:
+            if ifloorx >= gmap.cols - 1 or gmap.walls[ifloorx + 1][ifloory] == 1:
                 self.location[0] -= 2 * (self.radius + fracx - 1)
                 self.velocity[0] *= -1
         if fracy < self.radius: # Into top square
-            if gmap.walls[ifloorx][ifloory - 1] == 1:
+            if ifloory <= 0 or gmap.walls[ifloorx][ifloory - 1] == 1:
                 self.location[1] += 2 * (self.radius - fracy)
                 self.velocity[1] *= -1
         if 1 - fracy < self.radius: # Into bottom square
-            if gmap.walls[ifloorx][ifloory + 1] == 1:
+            if ifloory >= gmap.rows - 1 or gmap.walls[ifloorx][ifloory + 1] == 1:
                 self.location[1] -= 2 * (self.radius + fracy - 1)
                 self.velocity[1] *= -1
         # Corner collisions (oh jeez)

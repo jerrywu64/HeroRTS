@@ -84,9 +84,11 @@ class ClientHero(Character):
         if self.firing:
             self.firing = False
             self.fired = True
-            game_map.bullets.append(self.server_hero.make_bullet(game_map))
+            b = self.server_hero.make_bullet(game_map)
+            if b is not None: game_map.bullets.append(b)
 
     def draw(self, game_map):
+        print len(game_map.bullets)
         if self.server_hero.dead:
             # Death!!
             self.screen.fill((230, 0, 0))
