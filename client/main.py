@@ -32,8 +32,7 @@ class GameClientProtocol(protocol.Protocol):
         full = (self.buf + data).split("\n")
         self.buf = full[-1]
         for line in full[:-1]:
-            # print "dataReceived", data
-            json_data = json.loads(data)
+            json_data = json.loads(line)
             if json_data["message_type"] == "hello":
                 global game_map
                 print "Hello message"

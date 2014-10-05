@@ -38,7 +38,7 @@ class GameProtocol(protocol.Protocol):
         full = (self.buf + data).split("\n")
         self.buf = full[-1]
         for line in full[:-1]:
-            json_data = json.loads(data)
+            json_data = json.loads(line)
             if json_data["message_type"] == "map_request":
                 self.client_type = json_data["mode"]
                 if self.client_type == "hero":
