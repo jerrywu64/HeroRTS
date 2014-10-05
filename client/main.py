@@ -10,8 +10,8 @@ character = None
 
 if __name__ == "__main__":
     pygame.init()
-    #screen = pygame.display.set_mode((0,0), pygame.FULLSCREEN)
-    screen = pygame.display.set_mode((620,480))
+    screen = pygame.display.set_mode((0,0), pygame.FULLSCREEN)
+    # screen = pygame.display.set_mode((620,480))
     character = Hero(screen)
     game_map = GameMap(20, 20, [
         1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
