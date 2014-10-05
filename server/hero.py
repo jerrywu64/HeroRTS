@@ -1,7 +1,7 @@
 import math
 
-def dist(x1, y1, x2, y2):
-    return math.sqrt((x1-x2)*(x1-x2)+(y1-y2)*(y1-y2))
+from bullet import Bullet
+from util import dist
 
 class Hero:
     def __init__(self, hp, x, y, th):  # the commander screen's start coordinates (top left?) and orientation
@@ -68,7 +68,7 @@ class Hero:
         targetx += (self.radius + brad) * math.cos(self.orientation)
         targety -= (self.radius + brad) * math.sin(self.orientation)
         if gmap.walls[int(targetx)][int(targety)] == 0: # can't make a bullet in a wall
-            return Bullet(bdam, target, targety, math.cos(self.orientation) * bspd, -math.sin(self.orientation) * bspd, brad)
+            return Bullet(bdam, targetx, targety, math.cos(self.orientation) * bspd, -math.sin(self.orientation) * bspd, brad)
         # maybe later: don't allow bullets to be made that overlap with the walls
     
     # Returns True if move caused the person to actually change positions, False otherwise.

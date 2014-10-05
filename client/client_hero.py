@@ -23,6 +23,8 @@ class ClientHero(Character):
         self.loc = (server_hero.location[0], server_hero.location[1])
         self.orientation = server_hero.orientation
         self.vel = (0, 0)
+        self.firing = False
+        self.fired = False
 
     def key_control(self, key, event):
         Character.key_control(self, key, event)
@@ -47,6 +49,11 @@ class ClientHero(Character):
                 self.vel = (self.vel[0]+1, self.vel[1])
             elif event == pygame.KEYUP:
                 self.vel = (self.vel[0]-1, self.vel[1])
+        elif (key == pygame.K_SPACE):
+            if event == pygame.KEYDOWN:
+                self.firing = True
+            elif event == pygame.KEYUP:
+                self.firing = False
 
     def mouse_control(self, mouse_pos):
         # Mouse control assumes character is in the center of the screen
@@ -76,6 +83,11 @@ class ClientHero(Character):
             direction = -1
         self.server_hero.move(direction, game_map)
         self.loc = (self.server_hero.location[0], self.server_hero.location[1])
+
+        if self.firing:
+            self.firing = False
+            self.fired = True
+            game_map.bullets.append(self.server_hero.make_bullet(game_map))
 
     def draw(self, game_map):
         self.t.update_viewport((self.loc[1] - ClientHero.VIEW_SQ_RADIUS,

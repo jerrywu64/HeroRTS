@@ -37,20 +37,22 @@ class GameProtocol(protocol.Protocol):
                 "rows": game_map.rows,
                 "cols": game_map.cols,
                 "hero": game_map.hero.dictify(),
-                "units": [u.dictify() for u in game_map.units]
+                "units": [u.dictify() for u in game_map.units],
+                "bullets": [b.dictify() for b in game_map.bullets]
             }) + "\n")
         elif json_data["message_type"] == "update":
             hero.location = json_data["location"]
             hero.orientation = json_data["orientation"]
             if json_data["fired"]:
-                # Do some shit
-                pass
+                b = hero.make_bullet(game_map)
+                game_map.bullets.append(b)
 
             # Respond with everything
             self.transport.write(json.dumps({
                 "message_type": "update",
                 "hero": game_map.hero.dictify(),
-                "units": [u.dictify() for u in game_map.units]
+                "units": [u.dictify() for u in game_map.units],
+                "bullets": [b.dictify() for b in game_map.bullets]
             }) + "\n")
         else:
             print "Unknown message type"
@@ -97,8 +99,22 @@ def main_loop():
     if not running: return
 
     # Update state
+    global game_map
     for u in game_map.units:
         u.move(0, game_map)
+    new_bullets = []
+    for b in game_map.bullets:
+        out = b.move(game_map)
+        if out is not False:
+            if out == -1:
+                hero.hp -= b.damage
+                print "Hero hit", hero.hp
+            else:
+                game_map.units[out].hp -= b.damage
+                print "Unit hit", out, game_map.units[out]
+        else:
+            new_bullets.append(b)
+    game_map.bullets = new_bullets
 
 if __name__ == "__main__":
     init()

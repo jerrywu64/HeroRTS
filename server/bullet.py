@@ -1,5 +1,6 @@
 import math
 
+from util import dist
 class Bullet:
     def __init__(self, damage, x, y, velx, vely, radius = 0.06, bounces = 3):
         # Speed should always be lower than radius, lest bad things happen.
@@ -8,6 +9,25 @@ class Bullet:
         self.velocity = [velx, vely] # units per tick
         self.radius = radius
         self.bounces = bounces
+
+    def dictify(self):
+        return {"damage": self.damage,
+                "location": self.location,
+                "velocity": self.velocity,
+                "radius": self.radius,
+                "bounces": self.bounces}
+
+    @classmethod
+    def from_dict(cls, d):
+        return cls(d["damage"], d["location"][0], d["location"][1],
+                   d["velocity"][0], d["velocity"][1], d["radius"], d["bounces"])
+
+    def update_from_dict(self, d):
+        self.damage = d["damage"]
+        self.location = d["location"]
+        self.velocity = d["velocity"]
+        self.radius = d["radius"]
+        self.bounces = d["bounces"]
         
     # Returns the index (in gmap.units) of person collided with, or -1 for hero, or False if didn't hit anyone.
     def move(self, gmap):
@@ -15,6 +35,8 @@ class Bullet:
         self.location[1] += self.velocity[1]
         fracx, floorx = math.modf(self.location[0])
         fracy, floory = math.modf(self.location[1])
+        ifloorx = int(floorx)
+        ifloory = int(floory)
         # Wall collisions (Adjustments are doubled since it's a reflection)
         if fracx < self.radius: # Into left square
             if gmap.walls[ifloorx - 1][ifloory] == 1:

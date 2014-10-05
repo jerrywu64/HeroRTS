@@ -24,14 +24,22 @@ class GameClientProtocol(protocol.Protocol):
         json_data = json.loads(data)
         if json_data["message_type"] == "hello":
             units = [Unit.from_dict(u) for u in json_data["units"]]
+            bullets = [Bullet.from_dict(b) for b in json_data["bullets"]]
             global server_hero
             server_hero = Hero.from_dict(json_data["hero"])
             global game_map
             game_map = GameMap(json_data["rows"], json_data["cols"],
-                               json_data["map"], server_hero, units)
+                               json_data["map"], server_hero, units, bullets)
         elif json_data["message_type"] == "update":
+            # Drop any removed units/bullets, then update values for remaining
+            if len(game_map.units) > len(json_data["units"]):
+                game_map.units = game_map.units[:len(json_data["units"])]
             for u_old, u_new in zip(game_map.units, json_data["units"]):
                 u_old.update_from_dict(u_new)
+            if len(game_map.bullets) > len(json_data["bullets"]):
+                game_map.bullets = game_map.bullets[:len(json_data["bullets"])]
+            for b_old, b_new in zip(game_map.bullets, json_data["bullets"]):
+                b_old.update_from_dict(b_new)
             global server_hero
             server_hero.update_from_dict(json_data["hero"])
 
@@ -65,6 +73,15 @@ def main_loop():
     # Clear screen
     screen.fill((255, 255, 255))
     if game_map is not None:
+        for u in game_map.units:
+            u.move(0, game_map)
+        new_bullets = []
+        for b in game_map.bullets:
+            # Damage resolution is not done locally
+            out = b.move(game_map)
+            if out is False:
+                new_bullets.append(b)
+        game_map.bullets = new_bullets
         if character is None:
             character = ClientHero(screen, server_hero)
         character.update(game_map)
@@ -82,8 +99,10 @@ def main_loop():
             "message_type": "update",
             "location": character.loc,
             "orientation": character.orientation,
-            "fired": False
+            "fired": character.fired,
         }))
+        if character.fired:
+            character.fired = False
 
 if __name__ == "__main__":
     pygame.init()
