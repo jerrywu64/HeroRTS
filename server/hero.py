@@ -60,6 +60,17 @@ class Hero:
             return False
         return True
         
+    def make_bullet(self, gmap):
+        bdam = 2
+        bspd = 0.04
+        brad = 0.06 # radius
+        targetx, targety = self.location
+        targetx += (self.radius + brad) * math.cos(self.orientation)
+        targety -= (self.radius + brad) * math.sin(self.orientation)
+        if gmap.walls[int(targetx)][int(targety)] == 0: # can't make a bullet in a wall
+            return Bullet(bdam, target, targety, math.cos(self.orientation) * bspd, -math.sin(self.orientation) * bspd, brad)
+        # maybe later: don't allow bullets to be made that overlap with the walls
+    
     # Returns True if move caused the person to actually change positions, False otherwise.
     def move(self, direction, gmap):  # direction is a number from 0 to 7, starting positive-x and going ccw, relative to your orientation.
         if direction == -1:
