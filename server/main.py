@@ -24,6 +24,7 @@ class GameProtocol(protocol.Protocol):
     def connectionMade(self):
         print "Connection made!"
         self.client_type = None
+        self.buf = ""
 
     def connectionLost(self, reason):
         global running, done
@@ -31,50 +32,56 @@ class GameProtocol(protocol.Protocol):
         done = True
 
     def dataReceived(self, data):
-        json_data = json.loads(data)
-        if json_data["message_type"] == "map_request":
-            self.client_type = json_data["mode"]
-            if self.client_type == "hero":
-                global hero_connected
-                hero_connected = True
-            else:
-                global commander_connected
-                commander_connected = True
-            print "map_request recvd!"
-            self.transport.write(json.dumps({
-                "message_type": "hello",
-                "running": commander_connected and hero_connected,
-                "map": game_map.map_inp,
-                "rows": game_map.rows,
-                "cols": game_map.cols,
-                "hero": game_map.hero.dictify(),
-                "commander": game_map.commander.dictify(),
-                "units": [u.dictify() for u in game_map.units],
-                "bullets": [b.dictify() for b in game_map.bullets]
-            }) + "\n")
-        elif json_data["message_type"] == "update":
-            if self.client_type is None:
-                self.transport.loseConnection()
-            elif self.client_type == "hero":
-                hero.location = json_data["location"]
-                hero.orientation = json_data["orientation"]
-                if json_data["fired"]:
-                    b = hero.make_bullet(game_map)
-                    game_map.bullets.append(b)
-            elif self.client_type == "commander":
-                commander.waypoints = json_data["waypoints"]
+        if not '\n' in data:
+            self.buf += data
+            return
+        full = (self.buf + data).split("\n")
+        self.buf = full[-1]
+        for line in full[:-1]:
+            json_data = json.loads(data)
+            if json_data["message_type"] == "map_request":
+                self.client_type = json_data["mode"]
+                if self.client_type == "hero":
+                    global hero_connected
+                    hero_connected = True
+                else:
+                    global commander_connected
+                    commander_connected = True
+                print "map_request recvd!"
+                self.transport.write(json.dumps({
+                    "message_type": "hello",
+                    "running": commander_connected and hero_connected,
+                    "map": game_map.map_inp,
+                    "rows": game_map.rows,
+                    "cols": game_map.cols,
+                    "hero": game_map.hero.dictify(),
+                    "commander": game_map.commander.dictify(),
+                    "units": [u.dictify() for u in game_map.units],
+                    "bullets": [b.dictify() for b in game_map.bullets]
+                }) + "\n")
+            elif json_data["message_type"] == "update":
+                if self.client_type is None:
+                    self.transport.loseConnection()
+                elif self.client_type == "hero":
+                    hero.location = json_data["location"]
+                    hero.orientation = json_data["orientation"]
+                    if json_data["fired"]:
+                        b = hero.make_bullet(game_map)
+                        game_map.bullets.append(b)
+                    elif self.client_type == "commander":
+                        commander.waypoints = json_data["waypoints"]
 
-            # Respond with everything
-            self.transport.write(json.dumps({
-                "message_type": "update",
-                "running": commander_connected and hero_connected,
-                "hero": game_map.hero.dictify(),
-                "commander": game_map.commander.dictify(),
-                "units": [u.dictify() for u in game_map.units],
-                "bullets": [b.dictify() for b in game_map.bullets]
-            }) + "\n")
-        else:
-            print "Unknown message type"
+                # Respond with everything
+                self.transport.write(json.dumps({
+                    "message_type": "update",
+                    "running": commander_connected and hero_connected,
+                    "hero": game_map.hero.dictify(),
+                    "commander": game_map.commander.dictify(),
+                    "units": [u.dictify() for u in game_map.units],
+                    "bullets": [b.dictify() for b in game_map.bullets]
+                }) + "\n")
+            else:
+                print "Unknown message type"
         
 
 class GameProtocolFactory(protocol.Factory):

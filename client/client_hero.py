@@ -104,7 +104,7 @@ class ClientHero(Character):
         draw_walls(self.screen, self.t, game_map)
         draw_hero(self.screen, self.t, game_map)
         draw_units(self.screen, self.t, game_map)
-        draw_waypoints(self.screen, self.t, game_map)
         draw_bullets(self.screen, self.t, game_map)
         draw_fow(self.screen, self.t, game_map)
+        draw_waypoints(self.screen, self.t, game_map)
         draw_letterbox(self.screen, self.t)
