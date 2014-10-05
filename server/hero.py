@@ -40,6 +40,7 @@ class Hero:
             return False
         return True
         
+    # Returns True if move caused the person to actually change positions, False otherwise.
     def move(self, direction, gmap):  # direction is a number from 0 to 7, starting positive-x and going ccw, relative to your orientation.
         if direction == -1:
             return

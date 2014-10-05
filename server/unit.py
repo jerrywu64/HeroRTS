@@ -9,6 +9,7 @@ class Unit:
     def dist(x1, y1, x2, y2):
         return math.sqrt((x1-x2)*(x1-x2)+(y1-y2)*(y1-y2))
         
+    # Returns True if move caused the person to actually change positions, False otherwise.
     def move(self, direction, gmap):  # direction is a number from 0 to 7, starting positive-x and going ccw, relative to your orientation.
         if direction == -1:
             return
