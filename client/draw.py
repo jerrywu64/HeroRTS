@@ -1,5 +1,12 @@
 import math, pygame
 
+def draw_bg(screen, t):
+    screen.fill((230, 230, 230),
+                pygame.Rect(t.surface_width_offset(),
+                            t.surface_height_offset(),
+                            t.surface_real_width(),
+                            t.surface_real_height()))
+
 def draw_walls(screen, t, game_map):
     """
     screen: PyGame surface
@@ -27,31 +34,31 @@ def draw_walls(screen, t, game_map):
                                   t.transform_height(1))), 3)
 
 
-def draw_hero(screen, t, game_map, hero):
+def draw_hero(screen, t, game_map):
     """
     screen: PyGame surface
     t: Transform
-    game_map: Game map info
-    hero: Current ClientHero object
+    game_map: PyGame map
     """
+    hero = game_map.hero
     # Character border
     pygame.draw.circle(screen, (100, 0, 0), 
-                       t.transform_coord(hero.loc),
+                       t.transform_coord(hero.location),
                        t.transform_width(hero.CHARACTER_RADIUS
                                          + hero.CHARACTER_BORDER),
                        0)
     # Character fill
     pygame.draw.circle(screen, (200, 0, 0), 
-                       t.transform_coord(hero.loc),
+                       t.transform_coord(hero.location),
                        t.transform_width(hero.CHARACTER_RADIUS),
                        0)
     # Character orientation
     orient_delta_x = math.cos(hero.orientation)*hero.CHARACTER_RADIUS
     orient_delta_y = -math.sin(hero.orientation)*hero.CHARACTER_RADIUS
     pygame.draw.line(screen, (100, 0, 0),
-                     t.transform_coord(hero.loc),
-                     t.transform_coord((hero.loc[0]+orient_delta_x,
-                                        hero.loc[1]+orient_delta_y)), 3)
+                     t.transform_coord(hero.location),
+                     t.transform_coord((hero.location[0]+orient_delta_x,
+                                        hero.location[1]+orient_delta_y)), 3)
 
 def draw_units(screen, t, game_map):
     """

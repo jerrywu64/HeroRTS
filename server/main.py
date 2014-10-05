@@ -3,6 +3,7 @@ import json, math
 from twisted.internet import protocol, reactor, task, endpoints
 
 from game_map import GameMap
+from commander import Commander
 from hero import Hero
 from unit import Unit
 
@@ -13,6 +14,7 @@ done = False
 # Global game map
 game_map = None
 hero = None
+commander = None
 
 class GameProtocol(protocol.Protocol):
     def connectionMade(self):
@@ -37,6 +39,7 @@ class GameProtocol(protocol.Protocol):
                 "rows": game_map.rows,
                 "cols": game_map.cols,
                 "hero": game_map.hero.dictify(),
+                "commander": game_map.commander.dictify(),
                 "units": [u.dictify() for u in game_map.units],
                 "bullets": [b.dictify() for b in game_map.bullets]
             }) + "\n")
@@ -51,6 +54,7 @@ class GameProtocol(protocol.Protocol):
             self.transport.write(json.dumps({
                 "message_type": "update",
                 "hero": game_map.hero.dictify(),
+                "commander": game_map.commander.dictify(),
                 "units": [u.dictify() for u in game_map.units],
                 "bullets": [b.dictify() for b in game_map.bullets]
             }) + "\n")
@@ -65,7 +69,9 @@ class GameProtocolFactory(protocol.Factory):
 def init():
     global game_map
     global hero
+    global commander
     hero = Hero(10, 11.0, 11.0, math.pi/2)
+    commander = Commander()
     game_map = GameMap(20, 20, [
         1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
         1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
@@ -87,7 +93,7 @@ def init():
         1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
         1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
         1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1
-        ], hero, [Unit(10, 1.5, 1.5, 0)])
+        ], hero, commander, [Unit(10, 1.5, 1.5, 0)])
 
 def main_loop():
     # Handle stopped, and done

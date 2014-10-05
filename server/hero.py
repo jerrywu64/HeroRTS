@@ -4,6 +4,8 @@ from bullet import Bullet
 from util import dist
 
 class Hero:
+    CHARACTER_RADIUS = 0.25
+    CHARACTER_BORDER = 0.10
     def __init__(self, hp, x, y, th, dead=False):  # the commander screen's start coordinates (top left?) and orientation
         self.location = [x, y]
         self.hp = hp

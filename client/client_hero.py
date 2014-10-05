@@ -1,14 +1,12 @@
 import math, pygame, sys
 sys.path.append("../server")
 
-from draw import draw_walls, draw_hero, draw_units, draw_bullets, draw_letterbox
+from draw import draw_bg, draw_walls, draw_hero, draw_units, draw_bullets, draw_letterbox
 from hero import Hero
 from character import Character
 from transform import Transform
 
 class ClientHero(Character):
-    CHARACTER_RADIUS = 0.25
-    CHARACTER_BORDER = 0.10
     VIEW_SQ_RADIUS = 5.0
     def __init__(self, screen, server_hero):
         """
@@ -21,8 +19,6 @@ class ClientHero(Character):
         self.t = Transform(screen, (0, ClientHero.VIEW_SQ_RADIUS*2,
                                     0, ClientHero.VIEW_SQ_RADIUS*2))
         self.server_hero = server_hero
-        self.loc = (server_hero.location[0], server_hero.location[1])
-        self.orientation = server_hero.orientation
         self.vel = (0, 0)
         self.firing = False
         self.fired = False
@@ -61,7 +57,7 @@ class ClientHero(Character):
         # Mouse control assumes character is in the center of the screen
         delta_x = mouse_pos[0] - (self.screen.get_width()/2.0)
         delta_y = mouse_pos[1] - (self.screen.get_height()/2.0)
-        self.orientation = math.atan2(-delta_y, delta_x)
+        self.server_hero.orientation = math.atan2(-delta_y, delta_x)
 
     def update(self, game_map):
         # Set direction
@@ -84,7 +80,6 @@ class ClientHero(Character):
         else:
             direction = -1
         self.server_hero.move(direction, game_map)
-        self.loc = (self.server_hero.location[0], self.server_hero.location[1])
 
         if self.firing:
             self.firing = False
@@ -100,18 +95,13 @@ class ClientHero(Character):
                                      self.screen.get_height()/2.0))
             return
 
-        self.t.update_viewport((self.loc[1] - ClientHero.VIEW_SQ_RADIUS,
-                                self.loc[1] + ClientHero.VIEW_SQ_RADIUS,
-                                self.loc[0] - ClientHero.VIEW_SQ_RADIUS,
-                                self.loc[0] + ClientHero.VIEW_SQ_RADIUS))
-        self.screen.fill((230, 230, 230),
-                         pygame.Rect(self.t.surface_width_offset(),
-                                     self.t.surface_height_offset(),
-                                     self.t.surface_real_width(),
-                                     self.t.surface_real_height()))
-
+        self.t.update_viewport((self.server_hero.location[1] - ClientHero.VIEW_SQ_RADIUS,
+                                self.server_hero.location[1] + ClientHero.VIEW_SQ_RADIUS,
+                                self.server_hero.location[0] - ClientHero.VIEW_SQ_RADIUS,
+                                self.server_hero.location[0] + ClientHero.VIEW_SQ_RADIUS))
+        draw_bg(self.screen, self.t)
         draw_walls(self.screen, self.t, game_map)
-        draw_hero(self.screen, self.t, game_map, self)
+        draw_hero(self.screen, self.t, game_map)
         draw_units(self.screen, self.t, game_map)
         draw_bullets(self.screen, self.t, game_map)
         draw_letterbox(self.screen, self.t)

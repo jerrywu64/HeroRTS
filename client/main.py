@@ -4,13 +4,15 @@ from twisted.internet import protocol, reactor, task, endpoints
 # TODO: Unhack this...
 sys.path.append("../server")
 from game_map import GameMap
+from commander import Commander
 from hero import Hero
 from unit import Unit
+from client_commander import ClientCommander
 from client_hero import ClientHero
 
 # Global client settings
+mode = None # "hero" or "commander", based on cmd line args
 character = None
-server_hero = None
 game_map = None
 prot = None
 
@@ -23,13 +25,14 @@ class GameClientProtocol(protocol.Protocol):
         # print "dataReceived", data
         json_data = json.loads(data)
         if json_data["message_type"] == "hello":
+            global game_map
+            print "Hello message"
             units = [Unit.from_dict(u) for u in json_data["units"]]
             bullets = [Bullet.from_dict(b) for b in json_data["bullets"]]
-            global server_hero
-            server_hero = Hero.from_dict(json_data["hero"])
-            global game_map
+            hero = Hero.from_dict(json_data["hero"])
+            commander = Commander.from_dict(json_data["commander"])
             game_map = GameMap(json_data["rows"], json_data["cols"],
-                               json_data["map"], server_hero, units, bullets)
+                               json_data["map"], hero, commander, units, bullets)
         elif json_data["message_type"] == "update":
             # Drop any removed units/bullets, then update values for remaining
             if len(game_map.units) > len(json_data["units"]):
@@ -40,8 +43,8 @@ class GameClientProtocol(protocol.Protocol):
                 game_map.bullets = game_map.bullets[:len(json_data["bullets"])]
             for b_old, b_new in zip(game_map.bullets, json_data["bullets"]):
                 b_old.update_from_dict(b_new)
-            global server_hero
-            server_hero.update_from_dict(json_data["hero"])
+            game_map.hero.update_from_dict(json_data["hero"])
+            game_map.commander.update_from_dict(json_data["commander"])
 
     def sendMessage(self, msg):
         # print "sendMessage"
@@ -62,6 +65,7 @@ class GameClientProtocolFactory(protocol.Factory):
         print "connection failed"
 
 def main_loop():
+    print "main_loop", game_map
     global character
     if character is not None:
         for event in pygame.event.get():
@@ -83,7 +87,11 @@ def main_loop():
                 new_bullets.append(b)
         game_map.bullets = new_bullets
         if character is None:
-            character = ClientHero(screen, server_hero)
+            if mode == "hero":
+                print "Hero client"
+                character = ClientHero(screen, game_map.hero)
+            else:
+                character = ClientCommander(screen, game_map.commander)
         character.update(game_map)
         character.draw(game_map)
     else:
@@ -95,16 +103,28 @@ def main_loop():
 
     # Send data
     if prot is not None and game_map is not None:
-        prot.sendMessage(json.dumps({
-            "message_type": "update",
-            "location": character.loc,
-            "orientation": character.orientation,
-            "fired": character.fired,
-        }))
-        if character.fired:
+        if mode == "hero":
+            prot.sendMessage(json.dumps({
+                "message_type": "update",
+                "location": character.server_hero.location,
+                "orientation": character.server_hero.orientation,
+                "fired": character.fired,
+            }))
+        if mode == "hero" and character.fired:
             character.fired = False
 
 if __name__ == "__main__":
+    if len(sys.argv) < 2:
+        print "Need to specify commander or hero"
+        sys.exit()
+    if (sys.argv[1] != "hero" and
+        sys.argv[1] != "commander"):
+        print "Need to specify commander or hero"
+        sys.exit()
+    else:
+        print "Entering %s mode" % sys.argv[1]
+    mode = sys.argv[1]
+        
     pygame.init()
     # screen = pygame.display.set_mode((0,0), pygame.FULLSCREEN)
     screen = pygame.display.set_mode((620,480))
