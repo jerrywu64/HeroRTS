@@ -17,16 +17,40 @@ class Hero(Character):
         self.t = Transform(screen, (0, Hero.VIEW_SQ_RADIUS*2,
                                     0, Hero.VIEW_SQ_RADIUS*2))
         self.loc = (11.0, 11.0)
+        self.vel = (0.0, 0.0)
 
-    def control(self, key):
-        Character.control(self, key)
-        # Add hero control here
+    def control(self, key, event):
+        Character.control(self, key, event)
+        # Custom hero control
+        if (key == pygame.K_w):
+            if event == pygame.KEYDOWN:
+                self.vel = (self.vel[0], self.vel[1]-0.1)
+            elif event == pygame.KEYUP:
+                self.vel = (self.vel[0], self.vel[1]+0.1)
+        elif (key == pygame.K_s):
+            if event == pygame.KEYDOWN:
+                self.vel = (self.vel[0], self.vel[1]+0.1)
+            elif event == pygame.KEYUP:
+                self.vel = (self.vel[0], self.vel[1]-0.1)
+        elif (key == pygame.K_a):
+            if event == pygame.KEYDOWN:
+                self.vel = (self.vel[0]-0.1, self.vel[1])
+            elif event == pygame.KEYUP:
+                self.vel = (self.vel[0]+0.1, self.vel[1])
+        elif (key == pygame.K_d):
+            if event == pygame.KEYDOWN:
+                self.vel = (self.vel[0]+0.1, self.vel[1])
+            elif event == pygame.KEYUP:
+                self.vel = (self.vel[0]-0.1, self.vel[1])
+
+    def update(self):
+        self.loc = (self.loc[0]+self.vel[0], self.loc[1]+self.vel[1])
 
     def draw(self, game_map):
-        self.t.update_viewport((self.loc[0] - Hero.VIEW_SQ_RADIUS,
-                                self.loc[0] + Hero.VIEW_SQ_RADIUS,
-                                self.loc[1] - Hero.VIEW_SQ_RADIUS,
-                                self.loc[1] + Hero.VIEW_SQ_RADIUS))
+        self.t.update_viewport((self.loc[1] - Hero.VIEW_SQ_RADIUS,
+                                self.loc[1] + Hero.VIEW_SQ_RADIUS,
+                                self.loc[0] - Hero.VIEW_SQ_RADIUS,
+                                self.loc[0] + Hero.VIEW_SQ_RADIUS))
         self.screen.fill((230, 230, 230),
                          pygame.Rect(self.t.surface_width_offset(),
                                      self.t.surface_height_offset(),
