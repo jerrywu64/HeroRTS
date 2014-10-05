@@ -16,7 +16,7 @@ class Unit:
 
     @classmethod
     def from_dict(cls, d):
-        return cls(d.hp, d.location[0], d.location[1], d.orientation)
+        return cls(d["hp"], d["location"][0], d["location"][1], d["orientation"])
     
     def dist(x1, y1, x2, y2):
         return math.sqrt((x1-x2)*(x1-x2)+(y1-y2)*(y1-y2))

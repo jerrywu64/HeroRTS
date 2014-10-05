@@ -10,13 +10,18 @@ from client_hero import ClientHero
 
 # Global client settings
 character = None
+server_hero = None
 game_map = None
 prot = None
 recvd_hello = False
 
 class GameClientProtocol(protocol.Protocol):
-    def dataRecieved(self, data):
-        print "dataReceived", data
+    def connectionMade(self):
+        self.sendMessage(json.dumps({
+            "message_type": "map_request"}))
+    
+    def dataReceived(self, data):
+        # print "dataReceived", data
         json_data = json.loads(data)
         if json_data["message_type"] == "hello":
             global recvd_hello
@@ -24,11 +29,14 @@ class GameClientProtocol(protocol.Protocol):
             people = []
             for p in json_data["people"]:
                 if p["type"] == "hero":
-                    people.append(Hero.from_dict(p))
+                    global server_hero
+                    server_hero = Hero.from_dict(p)
+                    people.append(server_hero)
                 elif p["type"] == "unit":
                     people.append(Unit.from_dict(p))
                 else:
                     raise Exception("Unknown person type")
+            print "people:", people
             global game_map
             game_map = GameMap(json_data["rows"], json_data["cols"],
                                json_data["map"], people)
@@ -37,7 +45,7 @@ class GameClientProtocol(protocol.Protocol):
             pass
 
     def sendMessage(self, msg):
-        print "sendMessage"
+        # print "sendMessage"
         self.transport.write(msg + "\n")
 
 class GameClientProtocolFactory(protocol.Factory):
@@ -55,15 +63,19 @@ class GameClientProtocolFactory(protocol.Factory):
         print "connection failed"
 
 def main_loop():
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT: sys.exit()
-        if event.type == pygame.KEYDOWN or event.type == pygame.KEYUP:
-            character.key_control(event.key, event.type)
-    character.mouse_control(pygame.mouse.get_pos())
+    global character
+    if character is not None:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT: sys.exit()
+            if event.type == pygame.KEYDOWN or event.type == pygame.KEYUP:
+                character.key_control(event.key, event.type)
+        character.mouse_control(pygame.mouse.get_pos())
 
     # Clear screen
     screen.fill((255, 255, 255))
     if game_map is not None:
+        if character is None:
+            character = ClientHero(screen, server_hero)
         character.update(game_map)
         character.draw(game_map)
     else:
@@ -74,27 +86,18 @@ def main_loop():
     pygame.display.flip()
 
     # Send data
-    if prot is not None:
-        if game_map is None:
-            if not recvd_hello:
-                global recvd_hello
-                recvd_hello = True
-                prot.sendMessage(json.dumps({
-                    "message_type": "map_request"}))
-        else:
-            prot.sendMessage(json.dumps({
-                "message_type": "update",
-                "location": character.loc,
-                "orientation": character.orientation,
-                "fired": False
-            }))
+    if prot is not None and game_map is not None:
+        prot.sendMessage(json.dumps({
+            "message_type": "update",
+            "location": character.loc,
+            "orientation": character.orientation,
+            "fired": False
+        }))
 
 if __name__ == "__main__":
     pygame.init()
     # screen = pygame.display.set_mode((0,0), pygame.FULLSCREEN)
     screen = pygame.display.set_mode((620,480))
-    server_hero = Hero(10, 11.0, 11.0, math.pi/2.0)
-    character = ClientHero(screen, server_hero)
 
     reactor.connectTCP("localhost", 9999, GameClientProtocolFactory())
     tick = task.LoopingCall(main_loop)

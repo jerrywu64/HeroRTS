@@ -27,7 +27,7 @@ class Hero:
 
     @classmethod
     def from_dict(cls, d):
-        return cls(d.hp, d.location[0], d.location[1], d.orientation)
+        return cls(d["hp"], d["location"][0], d["location"][1], d["orientation"])
 
     def visible(self, x, y, gmap):  # returns if the grid-square (x, y) is visible.
         # Check if the point is in the field of view:

@@ -1,5 +1,7 @@
 import math, pygame, sys
+sys.path.append("../server")
 
+from hero import Hero
 from character import Character
 from transform import Transform
 
@@ -128,7 +130,7 @@ class ClientHero(Character):
         # Draw units
         for unit in game_map.people:
             # Skip the hero
-            if isinstance(unit, ClientHero): continue
+            if isinstance(unit, Hero): continue
             # Unit border
             pygame.draw.circle(self.screen, (0, 100, 100), 
                                self.t.transform_coord(unit.location),
