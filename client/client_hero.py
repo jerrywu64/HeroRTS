@@ -1,7 +1,7 @@
 import math, pygame, sys
 sys.path.append("../server")
 
-from draw import draw_bg, draw_waypoints, draw_walls, draw_hero, draw_units, draw_bullets, draw_letterbox
+from draw import draw_bg, draw_waypoints, draw_walls, draw_hero, draw_units, draw_fow, draw_bullets, draw_letterbox
 from hero import Hero
 from character import Character
 from transform import Transform
@@ -88,7 +88,6 @@ class ClientHero(Character):
             if b is not None: game_map.bullets.append(b)
 
     def draw(self, game_map):
-        print len(game_map.bullets)
         if self.server_hero.dead:
             # Death!!
             self.screen.fill((230, 0, 0))
@@ -107,4 +106,5 @@ class ClientHero(Character):
         draw_units(self.screen, self.t, game_map)
         draw_waypoints(self.screen, self.t, game_map)
         draw_bullets(self.screen, self.t, game_map)
+        draw_fow(self.screen, self.t, game_map)
         draw_letterbox(self.screen, self.t)

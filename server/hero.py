@@ -14,7 +14,7 @@ class Hero:
         self.fov_angle = 1 # Angle from center, in radians, that the hero can 
             # see. This means that the central angle of the cone of the hero's
             # vision is 2 * fov_angle.
-        self.fov_radius = 10
+        self.fov_radius = 5
         self.radius = 0.3 # The hero is a circle?
         self.speed = 0.04 # squares per tick
         self.dead = dead
@@ -43,27 +43,31 @@ class Hero:
 
     def visible(self, x, y, gmap):  # returns if the grid-square (x, y) is visible.
         # Check if the point is in the field of view:
-        if dist(x, y, self.location[0], self.location[1]) > self.fov_radius:
+        xoff = x+0.5
+        yoff = y+0.5
+        if dist(xoff, yoff, self.location[0], self.location[1]) > self.fov_radius:
             return False
+        if dist(xoff, yoff, self.location[0], self.location[1]) < 1:
+            return True
         angle = self.orientation
-        if x == self.location[0]:
-            if y > self.location[1]:
-                angle -= math.pi / 2
-            else:
+        if xoff == self.location[0]:
+            if yoff > self.location[1]:
                 angle -= 3 * math.pi / 2
+            else:
+                angle -= math.pi / 2
         else:
-            angle -= math.atan(self.location[1] - y,x - self.location[0])
+            angle -= math.atan2(self.location[1] - yoff, xoff - self.location[0])
         while angle > math.pi:
             angle -= 2 * math.pi
         while angle < -math.pi:
             angle += 2 * math.pi
-        if math.fabs(angle) > fov_angle:
-            return false
+        if math.fabs(angle) > self.fov_angle:
+            return False
         # Check if there's a wall in the way:
         # curloc = self.location
         # Never mind, we'll do this later maybe. If it's a wall, though:
         if gmap.walls[x][y] == 1:
-            return False
+            return True
         return True
         
     def make_bullet(self, gmap):

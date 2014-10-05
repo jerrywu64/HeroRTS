@@ -92,6 +92,24 @@ def draw_units(screen, t, game_map):
                          t.transform_coord((unit.location[0]+orient_delta_x,
                                             unit.location[1]+orient_delta_y)), 3)
 
+def draw_fow(screen, t, game_map):
+    """
+    screen: PyGame surface
+    t: Transform
+    game_map: Game map info
+    """
+    # Draw fog
+    for i, col in enumerate(game_map.walls):
+        for j, wall in enumerate(col):
+            if (abs(game_map.hero.location[0] - i) + abs(game_map.hero.location[1] - j) >
+                game_map.hero.fov_radius) or not game_map.hero.visible(i, j, game_map):
+                pygame.draw.rect(screen, (240, 240, 255),
+                                 pygame.Rect(
+                                     t.transform_coord((i, j)),
+                                     (t.transform_width(1),
+                                      t.transform_height(1))))
+            
+
 WAYPOINT_SIZE = 0.25
 def draw_waypoints(screen, t, game_map):
     """
@@ -113,7 +131,6 @@ def draw_bullets(screen, t, game_map):
     t: Transform
     game_map: Game map info
     """
-    # print len(game_map.bullets)
     # Draw units
     for b in game_map.bullets:
         # Unit fill
