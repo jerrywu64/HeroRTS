@@ -1,5 +1,6 @@
 import random
 from collections import deque
+from point import Point
 
 class Pathfinder:
     def __init__(self, map, destx, desty, currx, curry): #pathfinder that goes to (x,y)

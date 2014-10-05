@@ -40,6 +40,8 @@ class Unit:
         self.location = d["location"]
         self.orientation = d["orientation"]
         self.mode = d["mode"]
+        self.speed = d["speed"]
+        self.radius = d["radius"]
     
     def make_bullet(self, gmap):
         bdam = 1
@@ -75,7 +77,8 @@ class Unit:
         if (x, y) in cmdr.pathfinders:
             return cmdr.pathfinders[(x, y)].next_cell(self.location)
         else:
-            cmdr[(x, y)] = BFSPathfinder(game_map, x, y, self.location[0], self.location[1])
+            cmdr.pathfinders[(x, y)] = BFSPathfinder(game_map, x, y, self.location[0], self.location[1])
+            return cmdr.pathfinders[(x,y)].next_cell(self.location)
     
     def turn(self, angle):
         self.orientation += angle
