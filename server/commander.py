@@ -3,7 +3,6 @@ class Commander:
         
     def __init__(self, waypoints=[]): 
         self.waypoints = waypoints # The hero's waypoints
-        self.pathfinders = {} # a dict of pathfinders
 
     def dictify(self):
         return {"waypoints": self.waypoints}
@@ -21,6 +20,5 @@ class Commander:
     def rmwp(self, x, y):
         if self.waypoints.count([x, y]) > 0:
             self.waypoints.remove([x, y])
-            
 
     
