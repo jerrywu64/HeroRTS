@@ -1,17 +1,21 @@
 import math
 
-from util import dist
+from util import dist, incline
+from bullet import Bullet
+import random
 
 class Unit:
     CHARACTER_RADIUS = 0.25
     CHARACTER_BORDER = 0.10
-    def __init__(self, hp, x, y, th):
+    def __init__(self, hp, x, y, th, type = random.randint(1, 2)):
         self.location = [x, y]
         self.hp = hp
         self.orientation = th 
         self.cd = 0
         self.radius = 0.3
         self.speed = 0.015
+        self.type = type # 0 if allied, 1 or 2 otherwise
+        self.state = 0
 
     def dictify(self):
         return {"type": "unit",
@@ -29,6 +33,34 @@ class Unit:
         self.hp = d["hp"]
         self.location = d["location"]
         self.orientation = d["orientation"]
+    
+    def make_bullet(self, gmap):
+        bdam = 1
+        bspd = 0.05
+        brad = 0.07 # radius
+        targetx, targety = self.location
+        targetx += (self.radius + brad) * math.cos(self.orientation)
+        targety -= (self.radius + brad) * math.sin(self.orientation)
+        if gmap.walls[int(targetx)][int(targety)] == 0: # can't make a bullet in a wall
+            return Bullet(bdam, targetx, targety, math.cos(self.orientation) * bspd, -math.sin(self.orientation) * bspd, brad)
+        # maybe later: don't allow bullets to be made that overlap with the walls
+    
+    def ai(self, game_map):
+        hero = game_map.hero
+        if self.type == 0:
+            return
+        if self.type >= 1:
+            self.turn((incline(self.location[0], self.location[1], hero.location[0], hero.location[1]) - self.orientation) * 1.9)
+            if self.state % 60 == 0: self.fire(game_map)
+            self.move(0, game_map)
+            self.state += 1
+        
+    
+    def turn(self, angle):
+        self.orientation += angle
+    
+    def fire(self, gmap):
+        gmap.bullets.append(self.make_bullet(gmap))
     
     # Returns True if move caused the person to actually change positions, False otherwise.
     def move(self, direction, gmap):  # direction is a number from 0 to 7, starting positive-x and going ccw, relative to your orientation.

@@ -9,6 +9,7 @@ from hero import Hero
 from unit import Unit
 from client_commander import ClientCommander
 from client_hero import ClientHero
+from bullet import Bullet
 
 # Global client settings
 mode = None # "hero" or "commander", based on cmd line args

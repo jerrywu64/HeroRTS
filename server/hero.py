@@ -16,7 +16,7 @@ class Hero:
             # vision is 2 * fov_angle.
         self.fov_radius = 10
         self.radius = 0.3 # The hero is a circle?
-        self.speed = 0.03 # squares per tick
+        self.speed = 0.04 # squares per tick
         self.dead = dead
 
     def dictify(self):
@@ -68,7 +68,7 @@ class Hero:
         
     def make_bullet(self, gmap):
         bdam = 2
-        bspd = 0.04
+        bspd = 0.05
         brad = 0.06 # radius
         targetx, targety = self.location
         targetx += (self.radius + brad) * math.cos(self.orientation)

@@ -6,6 +6,9 @@ from game_map import GameMap
 from commander import Commander
 from hero import Hero
 from unit import Unit
+from util import incline
+from bullet import Bullet
+from random import random
 
 # Global flags for main loop
 running = False
@@ -93,7 +96,7 @@ def init():
         1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
         1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
         1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1
-        ], hero, commander, [Unit(10, 1.5, 1.5, 0)])
+        ], hero, commander, [Unit(10, 10.5, 7.5, 0)])
 
 def main_loop():
     # Handle stopped, and done
@@ -107,7 +110,7 @@ def main_loop():
     # Update state
     global game_map
     for u in game_map.units:
-        u.move(0, game_map)
+        u.ai(game_map)
     new_bullets = []
     for b in game_map.bullets:
         out = b.move(game_map)
