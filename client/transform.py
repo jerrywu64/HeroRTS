@@ -24,8 +24,8 @@ class Transform(object):
 
     def transform_width(self, width):
         game_width = self.viewport[3] - self.viewport[2]
-        return int((width/game_width)*self.surface.get_width())
+        return int((width/float(game_width))*self.surface.get_width())
 
     def transform_height(self, height):
         game_height = self.viewport[1] - self.viewport[0]
-        return int((height/game_height)*self.surface.get_height())
+        return int((height/float(game_height))*self.surface.get_height())
