@@ -59,7 +59,7 @@ class Unit:
             if len(game_map.commander.waypoints) == 0:
                 return
             self.turn((incline(self.location[0], self.location[1], game_map.commander.waypoints[len(game_map.commander.waypoints) - 1][0], game_map.commander.waypoints[len(game_map.commander.waypoints) - 1][1]) - self.orientation))
-            self.move(get_step(game_map.commander.waypoints[len(game_map.commander.waypoints) - 1][0], game_map.commander.waypoints[len(game_map.commander.waypoints) - 1][1], game_map.commander, game_map), game_map)
+            self.move(self.get_step(game_map.commander.waypoints[len(game_map.commander.waypoints) - 1][0], game_map.commander.waypoints[len(game_map.commander.waypoints) - 1][1], game_map.commander, game_map), game_map)
         if self.mode == 1:
             self.turn((incline(self.location[0], self.location[1], hero.location[0], hero.location[1]) - self.orientation) * 1.2)
             if self.state % 12 == 0: self.fire(game_map)
