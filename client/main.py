@@ -40,7 +40,8 @@ if __name__ == "__main__":
         for event in pygame.event.get():
             if event.type == pygame.QUIT: sys.exit()
             if event.type == pygame.KEYDOWN or event.type == pygame.KEYUP:
-                character.control(event.key, event.type)
+                character.key_control(event.key, event.type)
+        character.mouse_control(pygame.mouse.get_pos())
 
         # Clear screen
         screen.fill((255, 255, 255))

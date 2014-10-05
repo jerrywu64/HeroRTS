@@ -1,4 +1,4 @@
-import pygame, sys
+import math, pygame, sys
 
 from character import Character
 from transform import Transform
@@ -18,11 +18,12 @@ class ClientHero(Character):
         self.t = Transform(screen, (0, ClientHero.VIEW_SQ_RADIUS*2,
                                     0, ClientHero.VIEW_SQ_RADIUS*2))
         self.server_hero = server_hero
-        self.loc = (11.0, 11.0)
+        self.loc = (server_hero.location[0], server_hero.location[1])
+        self.orientation = server_hero.orientation
         self.vel = (0, 0)
 
-    def control(self, key, event):
-        Character.control(self, key, event)
+    def key_control(self, key, event):
+        Character.key_control(self, key, event)
         # Custom hero control
         if (key == pygame.K_w):
             if event == pygame.KEYDOWN:
@@ -44,6 +45,12 @@ class ClientHero(Character):
                 self.vel = (self.vel[0]+1, self.vel[1])
             elif event == pygame.KEYUP:
                 self.vel = (self.vel[0]-1, self.vel[1])
+
+    def mouse_control(self, mouse_pos):
+        # Mouse control assumes character is in the center of the screen
+        delta_x = mouse_pos[0] - (self.screen.get_width()/2.0)
+        delta_y = mouse_pos[1] - (self.screen.get_height()/2.0)
+        self.orientation = math.atan2(-delta_y, delta_x)
 
     def update(self, game_map):
         # Set direction
@@ -99,17 +106,24 @@ class ClientHero(Character):
                                      (self.t.transform_width(1),
                                       self.t.transform_height(1))), 3)
 
-        # Border
+        # Character border
         pygame.draw.circle(self.screen, (100, 0, 0), 
                            self.t.transform_coord(self.loc),
                            self.t.transform_width(ClientHero.CHARACTER_RADIUS
                                                   + ClientHero.CHARACTER_BORDER),
                            0)
-        # Fill
+        # Character fill
         pygame.draw.circle(self.screen, (200, 0, 0), 
                            self.t.transform_coord(self.loc),
                            self.t.transform_width(ClientHero.CHARACTER_RADIUS),
                            0)
+        # Character orientation
+        orient_delta_x = math.cos(self.orientation)*ClientHero.CHARACTER_RADIUS
+        orient_delta_y = -math.sin(self.orientation)*ClientHero.CHARACTER_RADIUS
+        pygame.draw.line(self.screen, (100, 0, 0),
+                         self.t.transform_coord(self.loc),
+                         self.t.transform_coord((self.loc[0]+orient_delta_x,
+                                                 self.loc[1]+orient_delta_y)), 3)
 
         # Letterbox - left
         pygame.draw.rect(self.screen, (0, 0, 0),
