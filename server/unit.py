@@ -1,3 +1,8 @@
+import math
+
+def dist(x1, y1, x2, y2):
+    return math.sqrt((x1-x2)*(x1-x2)+(y1-y2)*(y1-y2))
+
 class Unit:
     def __init__(self, hp, x, y, th):
         self.location = [x, y]
@@ -18,10 +23,12 @@ class Unit:
     @classmethod
     def from_dict(cls, d):
         return cls(d["hp"], d["location"][0], d["location"][1], d["orientation"])
+
+    def update_from_dict(self, d):
+        self.hp = d["hp"]
+        self.location = d["location"]
+        self.orientation = d["orientation"]
     
-    def dist(x1, y1, x2, y2):
-        return math.sqrt((x1-x2)*(x1-x2)+(y1-y2)*(y1-y2))
-        
     # Returns True if move caused the person to actually change positions, False otherwise.
     def move(self, direction, gmap):  # direction is a number from 0 to 7, starting positive-x and going ccw, relative to your orientation.
         if direction == -1:

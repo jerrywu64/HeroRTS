@@ -13,7 +13,6 @@ character = None
 server_hero = None
 game_map = None
 prot = None
-recvd_hello = False
 
 class GameClientProtocol(protocol.Protocol):
     def connectionMade(self):
@@ -24,8 +23,6 @@ class GameClientProtocol(protocol.Protocol):
         # print "dataReceived", data
         json_data = json.loads(data)
         if json_data["message_type"] == "hello":
-            global recvd_hello
-            recvd_hello = True
             units = [Unit.from_dict(u) for u in json_data["units"]]
             global server_hero
             server_hero = Hero.from_dict(json_data["hero"])
@@ -33,8 +30,10 @@ class GameClientProtocol(protocol.Protocol):
             game_map = GameMap(json_data["rows"], json_data["cols"],
                                json_data["map"], server_hero, units)
         elif json_data["message_type"] == "update":
-            # TODO
-            pass
+            for u_old, u_new in zip(game_map.units, json_data["units"]):
+                u_old.update_from_dict(u_new)
+            global server_hero
+            server_hero.update_from_dict(json_data["hero"])
 
     def sendMessage(self, msg):
         # print "sendMessage"

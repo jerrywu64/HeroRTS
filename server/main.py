@@ -45,6 +45,13 @@ class GameProtocol(protocol.Protocol):
             if json_data["fired"]:
                 # Do some shit
                 pass
+
+            # Respond with everything
+            self.transport.write(json.dumps({
+                "message_type": "update",
+                "hero": game_map.hero.dictify(),
+                "units": [u.dictify() for u in game_map.units]
+            }) + "\n")
         else:
             print "Unknown message type"
         
@@ -88,8 +95,10 @@ def main_loop():
         print "Done"
         return
     if not running: return
-    # TODO: Do the main thing here
-    # print "Running"
+
+    # Update state
+    for u in game_map.units:
+        u.move(0, game_map)
 
 if __name__ == "__main__":
     init()

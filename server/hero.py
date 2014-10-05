@@ -30,6 +30,11 @@ class Hero:
     def from_dict(cls, d):
         return cls(d["hp"], d["location"][0], d["location"][1], d["orientation"])
 
+    def update_from_dict(self, d):
+        self.hp = d["hp"]
+        self.location = d["location"]
+        self.orientation = d["orientation"]
+
     def visible(self, x, y, gmap):  # returns if the grid-square (x, y) is visible.
         # Check if the point is in the field of view:
         if dist(x, y, self.location[0], self.location[1]) > self.fov_radius:
