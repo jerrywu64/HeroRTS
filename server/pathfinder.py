@@ -37,10 +37,11 @@ class BFSPathfinder(Pathfinder):
     def change_dest(self, pt):
         self.dest = pt
         self.bfs()
-    def next_cell(self):
-        next = self.curr
-        dist = self.distances[self.curr]
-        for pt in self.map.accessible_neighbors(self.curr):
+    def next_cell(self, loc):
+        cloc = Point(loc[0], loc[1])
+        next = cloc
+        dist = self.distances[cloc]
+        for pt in self.map.accessible_neighbors(cloc):
             if self.distances[pt] < dist:
                 next = pt
                 dist = self.distances[pt]
