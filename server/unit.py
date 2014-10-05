@@ -7,7 +7,7 @@ import random
 class Unit:
     CHARACTER_RADIUS = 0.25
     CHARACTER_BORDER = 0.10
-    def __init__(self, hp, x, y, th, type = random.randint(1, 2)):
+    def __init__(self, hp, x, y, th, type = 1):
         self.location = [x, y]
         self.hp = hp
         self.orientation = th 
@@ -15,6 +15,8 @@ class Unit:
         self.radius = 0.3
         self.speed = 0.015
         self.type = type # 0 if allied, 1 or 2 otherwise
+        if type != 0:
+            type = random.randint(1, 2)
         if type == 2:
             self.speed = 0.035
         self.state = 0
