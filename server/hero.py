@@ -46,14 +46,14 @@ class Hero:
         self.location[0] += math.cos(direction * math.pi / 4) * self.speed
         # Negative, because our coordinate system is the wrong handedness
         self.location[1] -= math.sin(direction * math.pi / 4) * self.speed
-        fracx, floorx = math.modf(self.location[0])
-        fracy, floory = math.modf(self.location[1])
-        ifloorx = int(floorx)
-        ifloory = int(floory)
         # Collision check, orthogonal walls
         cycles = 0
         newcycles = 1
         while cycles != newcycles and cycles < 100:  # This loop is for making sure that one object doesn't push you into another, and for preventing infinite loops.
+            fracx, floorx = math.modf(self.location[0])
+            fracy, floory = math.modf(self.location[1])
+            ifloorx = int(floorx)
+            ifloory = int(floory)
             cycles = newcycles
             if fracx < self.radius: # Into left square
                 if gmap.walls[ifloorx - 1][ifloory] == 1:

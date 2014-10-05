@@ -3,54 +3,76 @@ import pygame, sys
 from character import Character
 from transform import Transform
 
-class Hero(Character):
+class ClientHero(Character):
     CHARACTER_RADIUS = 0.25
     CHARACTER_BORDER = 0.10
     VIEW_SQ_RADIUS = 5.0
-    def __init__(self, screen):
+    def __init__(self, screen, server_hero):
         """
         screen: PyGame Surface object.
         t: Transform object to convert game coords to screen coords.
+        server_hero: Temp reference to server hero object...
         """
         super(Character, self).__init__()
         self.screen = screen
-        self.t = Transform(screen, (0, Hero.VIEW_SQ_RADIUS*2,
-                                    0, Hero.VIEW_SQ_RADIUS*2))
+        self.t = Transform(screen, (0, ClientHero.VIEW_SQ_RADIUS*2,
+                                    0, ClientHero.VIEW_SQ_RADIUS*2))
+        self.server_hero = server_hero
         self.loc = (11.0, 11.0)
-        self.vel = (0.0, 0.0)
+        self.vel = (0, 0)
 
     def control(self, key, event):
         Character.control(self, key, event)
         # Custom hero control
         if (key == pygame.K_w):
             if event == pygame.KEYDOWN:
-                self.vel = (self.vel[0], self.vel[1]-0.1)
+                self.vel = (self.vel[0], self.vel[1]-1)
             elif event == pygame.KEYUP:
-                self.vel = (self.vel[0], self.vel[1]+0.1)
+                self.vel = (self.vel[0], self.vel[1]+1)
         elif (key == pygame.K_s):
             if event == pygame.KEYDOWN:
-                self.vel = (self.vel[0], self.vel[1]+0.1)
+                self.vel = (self.vel[0], self.vel[1]+1)
             elif event == pygame.KEYUP:
-                self.vel = (self.vel[0], self.vel[1]-0.1)
+                self.vel = (self.vel[0], self.vel[1]-1)
         elif (key == pygame.K_a):
             if event == pygame.KEYDOWN:
-                self.vel = (self.vel[0]-0.1, self.vel[1])
+                self.vel = (self.vel[0]-1, self.vel[1])
             elif event == pygame.KEYUP:
-                self.vel = (self.vel[0]+0.1, self.vel[1])
+                self.vel = (self.vel[0]+1, self.vel[1])
         elif (key == pygame.K_d):
             if event == pygame.KEYDOWN:
-                self.vel = (self.vel[0]+0.1, self.vel[1])
+                self.vel = (self.vel[0]+1, self.vel[1])
             elif event == pygame.KEYUP:
-                self.vel = (self.vel[0]-0.1, self.vel[1])
+                self.vel = (self.vel[0]-1, self.vel[1])
 
-    def update(self):
-        self.loc = (self.loc[0]+self.vel[0], self.loc[1]+self.vel[1])
+    def update(self, game_map):
+        # Set direction
+        if self.vel == (1, 0):
+            direction = 0
+        elif self.vel == (1, -1):
+            direction = 1
+        elif self.vel == (0, -1):
+            direction = 2
+        elif self.vel == (-1, -1):
+            direction = 3
+        elif self.vel == (-1, 0):
+            direction = 4
+        elif self.vel == (-1, 1):
+            direction = 5
+        elif self.vel == (0, 1):
+            direction = 6
+        elif self.vel == (1, 1):
+            direction = 7
+        else:
+            direction = -1
+        self.server_hero.move(direction, game_map)
+        self.loc = (self.server_hero.location[0], self.server_hero.location[1])
 
     def draw(self, game_map):
-        self.t.update_viewport((self.loc[1] - Hero.VIEW_SQ_RADIUS,
-                                self.loc[1] + Hero.VIEW_SQ_RADIUS,
-                                self.loc[0] - Hero.VIEW_SQ_RADIUS,
-                                self.loc[0] + Hero.VIEW_SQ_RADIUS))
+        self.t.update_viewport((self.loc[1] - ClientHero.VIEW_SQ_RADIUS,
+                                self.loc[1] + ClientHero.VIEW_SQ_RADIUS,
+                                self.loc[0] - ClientHero.VIEW_SQ_RADIUS,
+                                self.loc[0] + ClientHero.VIEW_SQ_RADIUS))
         self.screen.fill((230, 230, 230),
                          pygame.Rect(self.t.surface_width_offset(),
                                      self.t.surface_height_offset(),
@@ -80,13 +102,13 @@ class Hero(Character):
         # Border
         pygame.draw.circle(self.screen, (100, 0, 0), 
                            self.t.transform_coord(self.loc),
-                           self.t.transform_width(Hero.CHARACTER_RADIUS
-                                                  + Hero.CHARACTER_BORDER),
+                           self.t.transform_width(ClientHero.CHARACTER_RADIUS
+                                                  + ClientHero.CHARACTER_BORDER),
                            0)
         # Fill
         pygame.draw.circle(self.screen, (200, 0, 0), 
                            self.t.transform_coord(self.loc),
-                           self.t.transform_width(Hero.CHARACTER_RADIUS),
+                           self.t.transform_width(ClientHero.CHARACTER_RADIUS),
                            0)
 
         # Letterbox - left
