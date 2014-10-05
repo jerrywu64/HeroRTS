@@ -130,6 +130,9 @@ if __name__ == "__main__":
     if len(sys.argv) < 2:
         print "Need to specify commander or hero"
         sys.exit()
+    if len(sys.argv) < 3:
+        print "Need to specify hostname"
+        sys.exit()
     if (sys.argv[1] != "hero" and
         sys.argv[1] != "commander"):
         print "Need to specify commander or hero"
@@ -142,7 +145,7 @@ if __name__ == "__main__":
     # screen = pygame.display.set_mode((0,0), pygame.FULLSCREEN)
     screen = pygame.display.set_mode((620,480))
 
-    reactor.connectTCP("localhost", 9999, GameClientProtocolFactory())
+    reactor.connectTCP(sys.argv[2], 9999, GameClientProtocolFactory())
     tick = task.LoopingCall(main_loop)
     tick.start(0.03)
     reactor.run()
