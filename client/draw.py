@@ -41,6 +41,7 @@ def draw_hero(screen, t, game_map):
     game_map: PyGame map
     """
     hero = game_map.hero
+    if hero.dead: return
     # Character border
     pygame.draw.circle(screen, (100, 0, 0), 
                        t.transform_coord(hero.location),
