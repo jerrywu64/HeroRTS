@@ -6,7 +6,7 @@ from transform import Transform
 class Hero(Character):
     CHARACTER_RADIUS = 0.25
     CHARACTER_BORDER = 0.10
-    VIEW_SQ_RADIUS = 10.0
+    VIEW_SQ_RADIUS = 5.0
     def __init__(self, screen):
         """
         screen: PyGame Surface object.
@@ -14,7 +14,8 @@ class Hero(Character):
         """
         super(Character, self).__init__()
         self.screen = screen
-        self.t = Transform(screen, (0, 20, 0, 20))
+        self.t = Transform(screen, (0, Hero.VIEW_SQ_RADIUS*2,
+                                    0, Hero.VIEW_SQ_RADIUS*2))
         self.loc = (11.0, 11.0)
 
     def control(self, key):
@@ -26,7 +27,11 @@ class Hero(Character):
                                 self.loc[0] + Hero.VIEW_SQ_RADIUS,
                                 self.loc[1] - Hero.VIEW_SQ_RADIUS,
                                 self.loc[1] + Hero.VIEW_SQ_RADIUS))
-        self.screen.fill((230, 230, 230))
+        self.screen.fill((230, 230, 230),
+                         pygame.Rect(self.t.surface_width_offset(),
+                                     self.t.surface_height_offset(),
+                                     self.t.surface_real_width(),
+                                     self.t.surface_real_height()))
 
         # Draw map
         pygame.draw.rect(self.screen, (180, 180, 180),
@@ -59,3 +64,24 @@ class Hero(Character):
                            self.t.transform_coord(self.loc),
                            self.t.transform_width(Hero.CHARACTER_RADIUS),
                            0)
+
+        # Letterbox - left
+        pygame.draw.rect(self.screen, (0, 0, 0),
+                         pygame.Rect(0, 0,
+                                     self.t.surface_width_offset(),
+                                     self.screen.get_height()))
+        # Letterbox - right
+        pygame.draw.rect(self.screen, (0, 0, 0),
+                         pygame.Rect(self.screen.get_width() - self.t.surface_width_offset(), 0,
+                                     self.t.surface_width_offset(),
+                                     self.screen.get_height()))
+        # Letterbox - top
+        pygame.draw.rect(self.screen, (0, 0, 0),
+                         pygame.Rect(0, 0,
+                                     self.screen.get_width(),
+                                     self.t.surface_height_offset()))
+        # Letterbox - bottom
+        pygame.draw.rect(self.screen, (0, 0, 0),
+                         pygame.Rect(0, self.screen.get_height() - self.t.surface_height_offset(),
+                                     self.screen.get_width(),
+                                     self.t.surface_height_offset()))
