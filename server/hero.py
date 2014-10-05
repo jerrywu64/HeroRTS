@@ -43,6 +43,7 @@ class Hero:
     def move(self, direction, gmap):  # direction is a number from 0 to 7, starting positive-x and going ccw, relative to your orientation.
         if direction == -1:
             return
+        oldx, oldy = self.location # backing it up in case something explodes
         self.location[0] += math.cos(direction * math.pi / 4) * self.speed
         # Negative, because our coordinate system is the wrong handedness
         self.location[1] -= math.sin(direction * math.pi / 4) * self.speed
@@ -95,6 +96,13 @@ class Hero:
             # Collision check, people
             for person in gmap.people:
                 if person.location[0] != self.location[0] or person.location[1] != self.location[1]:
-                    if dist(person.location[0], person.location[1], self.location[0], self.location[1]) < self.radius + person.radius:
-                        pass
+                    distp = dist(person.location[0], person.location[1], self.location[0], self.location[1])
+                    if distp < self.radius + person.radius:
+                        self.location[0] += (self.location[0] - person.location[0]) * ((self.radius + person.radius)/ distp - 1)
+                        self.location[1] += (self.location[1] - person.location[1]) * ((self.radius + person.radius)/ distp - 1)
+                        newcycles = cycles + 1
+        if cycles == 100: # Wow, you broke it!
+            self.location = [oldx, oldy] # Movement rejected.
+            
+        return self.location != [oldx, oldy]
             
