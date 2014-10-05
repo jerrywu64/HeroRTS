@@ -7,17 +7,17 @@ import random
 class Unit:
     CHARACTER_RADIUS = 0.25
     CHARACTER_BORDER = 0.10
-    def __init__(self, hp, x, y, th, type = 1):
+    def __init__(self, hp, x, y, th, mode = 1):
         self.location = [x, y]
         self.hp = hp
         self.orientation = th 
         self.cd = 0
         self.radius = 0.3
         self.speed = 0.015
-        self.type = type # 0 if allied, 1 or 2 otherwise
-        if type != 0:
-            type = random.randint(1, 2)
-        if type == 2:
+        self.mode = mode # 0 if allied, 1 or 2 otherwise
+        if mode != 0:
+            mode = random.randint(1, 2)
+        if mode == 2:
             self.speed = 0.035
         self.state = 0
 
@@ -27,16 +27,19 @@ class Unit:
                 "hp": self.hp,
                 "orientation": self.orientation,
                 "radius": self.radius,
-                "speed": self.speed}
+                "speed": self.speed,
+                "mode": self.mode}
 
     @classmethod
     def from_dict(cls, d):
-        return cls(d["hp"], d["location"][0], d["location"][1], d["orientation"])
+        return cls(d["hp"], d["location"][0], d["location"][1],
+                   d["orientation"], d["mode"])
 
     def update_from_dict(self, d):
         self.hp = d["hp"]
         self.location = d["location"]
         self.orientation = d["orientation"]
+        self.mode = d["mode"]
     
     def make_bullet(self, gmap):
         bdam = 1
@@ -52,17 +55,17 @@ class Unit:
     
     def ai(self, game_map):
         hero = game_map.hero
-        if self.type == 0:
+        if self.mode == 0:
             if len(game_map.commander.waypoints) == 0:
                 return
             self.turn((incline(self.location[0], self.location[1], game_map.commander.waypoints[len(game_map.commander.waypoints) - 1][0], game_map.commander.waypoints[len(game_map.commander.waypoints) - 1][1]) - self.orientation))
             self.move(int((self.orientation + 2 * math.pi) / (math.pi / 4)), game_map)
-        if self.type == 1:
+        if self.mode == 1:
             self.turn((incline(self.location[0], self.location[1], hero.location[0], hero.location[1]) - self.orientation) * 1.2)
             if self.state % 12 == 0: self.fire(game_map)
             self.move(int((self.orientation + 2 * math.pi) / (math.pi / 4)), game_map)
             self.state += 1
-        if self.type >= 2:
+        if self.mode >= 2:
             self.turn((incline(self.location[0], self.location[1], hero.location[0], hero.location[1]) - self.orientation) * 1.2)
             if self.state % 30 == 0: self.fire(game_map)
             self.move(int((self.orientation + 2 * math.pi) / (math.pi / 4)), game_map)

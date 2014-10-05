@@ -75,20 +75,20 @@ def draw_units(screen, t, game_map):
     # Draw units
     for unit in game_map.units:
         # Unit border
-        pygame.draw.circle(screen, COLOR_MAP[unit.type][0], 
+        pygame.draw.circle(screen, COLOR_MAP[unit.mode][0], 
                            t.transform_coord(unit.location),
                            t.transform_width(unit.CHARACTER_RADIUS
                                              + unit.CHARACTER_BORDER),
                            0)
         # Unit fill
-        pygame.draw.circle(screen, COLOR_MAP[unit.type][1], 
+        pygame.draw.circle(screen, COLOR_MAP[unit.mode][1], 
                            t.transform_coord(unit.location),
                            t.transform_width(unit.CHARACTER_RADIUS),
                            0)
         # Unit orientation
         orient_delta_x = math.cos(unit.orientation)*unit.CHARACTER_RADIUS
         orient_delta_y = -math.sin(unit.orientation)*unit.CHARACTER_RADIUS
-        pygame.draw.line(screen, COLOR_MAP[unit.type][0],
+        pygame.draw.line(screen, COLOR_MAP[unit.mode][0],
                          t.transform_coord(unit.location),
                          t.transform_coord((unit.location[0]+orient_delta_x,
                                             unit.location[1]+orient_delta_y)), 3)
