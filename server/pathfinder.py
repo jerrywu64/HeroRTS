@@ -1,4 +1,3 @@
-from game_map import Point
 import random
 from collections import deque
 
