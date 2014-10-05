@@ -3,6 +3,7 @@ class Unit:
         self.location = [x, y]
         self.hp = hp
         self.orientation = th 
+        self.cd = 0
         self.radius = 0.3
         self.speed = 0.015
 

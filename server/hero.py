@@ -8,6 +8,7 @@ class Hero:
         self.location = [x, y]
         self.hp = hp
         self.orientation = th # Positive-x-axis, going ccw, in range [0, 2pi).
+        self.cd = 0
         self.fov_angle = 1 # Angle from center, in radians, that the hero can 
             # see. This means that the central angle of the cone of the hero's
             # vision is 2 * fov_angle.
