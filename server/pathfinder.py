@@ -18,8 +18,8 @@ class DumbPathfinder(Pathfinder):
         self.curr = self.random_accessible()
 
 class BFSPathfinder(Pathfinder):
-    def __init__(self):
-        self.super().__init__(self)
+    def __init__(self, map, destx, desty, currx, curry):
+        self.super().__init__(self, map, destx, desty, currx, curry)
         self.bfs()
     def bfs(self):
         self.distances = {self.dest.floor() : 0}
