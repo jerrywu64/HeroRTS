@@ -51,14 +51,17 @@ class Unit:
     def ai(self, game_map):
         hero = game_map.hero
         if self.type == 0:
-            return
+            if len(game_map.commander.waypoints) == 0:
+                return
+            self.turn((incline(self.location[0], self.location[1], game_map.commander.waypoints[len(game_map.commander.waypoints) - 1][0], game_map.commander.waypoints[len(game_map.commander.waypoints) - 1][1]) - self.orientation))
+            self.move(int((self.orientation + 2 * math.pi) / (math.pi / 4)), game_map)
         if self.type == 1:
-            self.turn((incline(self.location[0], self.location[1], hero.location[0], hero.location[1]) - self.orientation) * 1.9)
+            self.turn((incline(self.location[0], self.location[1], hero.location[0], hero.location[1]) - self.orientation) * 1.2)
             if self.state % 12 == 0: self.fire(game_map)
             self.move(int((self.orientation + 2 * math.pi) / (math.pi / 4)), game_map)
             self.state += 1
         if self.type >= 2:
-            self.turn((incline(self.location[0], self.location[1], hero.location[0], hero.location[1]) - self.orientation) * 1.9)
+            self.turn((incline(self.location[0], self.location[1], hero.location[0], hero.location[1]) - self.orientation) * 1.2)
             if self.state % 30 == 0: self.fire(game_map)
             self.move(int((self.orientation + 2 * math.pi) / (math.pi / 4)), game_map)
             self.state += 1

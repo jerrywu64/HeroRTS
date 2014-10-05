@@ -109,6 +109,8 @@ def init():
         1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
         1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1
         ], hero, commander, [Unit(10, 10.5, 7.5, 0)])
+    game_map.generate_hostiles(5)
+    game_map.generate_friendlies(3)
 
 def main_loop():
     # Handle stopped, and done
@@ -126,7 +128,7 @@ def main_loop():
     new_bullets = []
     for b in game_map.bullets:
         out = b.move(game_map)
-        if out is not False:
+        if out is not False and b.bounces >= 0:
             if out == -1:
                 hero.hp -= b.damage
                 print "Hero hit", hero.hp

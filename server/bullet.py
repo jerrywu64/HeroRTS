@@ -2,7 +2,7 @@ import math
 
 from util import dist
 class Bullet:
-    def __init__(self, damage, x, y, velx, vely, radius = 0.06, bounces = 3):
+    def __init__(self, damage, x, y, velx, vely, radius = 0.06, bounces = 2):
         # Speed should always be lower than radius, lest bad things happen.
         self.damage = damage
         self.location = [x, y]
@@ -37,23 +37,28 @@ class Bullet:
         fracy, floory = math.modf(self.location[1])
         ifloorx = int(floorx)
         ifloory = int(floory)
+        bounce = False
         # Wall collisions (Adjustments are doubled since it's a reflection)
         if fracx < self.radius: # Into left square
             if ifloorx <= 0 or gmap.walls[ifloorx - 1][ifloory] == 1:
                 self.location[0] += 2 * (self.radius - fracx)
                 self.velocity[0] *= -1
+                bounce = True
         if 1 - fracx < self.radius: # Into right square
             if ifloorx >= gmap.cols - 1 or gmap.walls[ifloorx + 1][ifloory] == 1:
                 self.location[0] -= 2 * (self.radius + fracx - 1)
                 self.velocity[0] *= -1
+                bounce = True
         if fracy < self.radius: # Into top square
             if ifloory <= 0 or gmap.walls[ifloorx][ifloory - 1] == 1:
                 self.location[1] += 2 * (self.radius - fracy)
                 self.velocity[1] *= -1
+                bounce = True
         if 1 - fracy < self.radius: # Into bottom square
             if ifloory >= gmap.rows - 1 or gmap.walls[ifloorx][ifloory + 1] == 1:
                 self.location[1] -= 2 * (self.radius + fracy - 1)
                 self.velocity[1] *= -1
+                bounce = True
         # Corner collisions (oh jeez)
         # Okay, this is going to be an approximation. The bullet will be pushed away
         # the same way that units are.
@@ -66,6 +71,7 @@ class Bullet:
             vangle = math.atan2(-self.velocity[1], -self.velocity[0])
             self.velocity[0] = spd * math.cos(2 * normal - vangle)
             self.velocity[1] = spd * math.sin(2 * normal - vangle)
+            bounce = True
         d = dist(floorx + 1, floory, self.location[0], self.location[1])
         if d < self.radius and gmap.walls[ifloorx+1][ifloory-1]:
             self.location[0] -= (1 - fracx) * (self.radius / d - 1)
@@ -75,6 +81,7 @@ class Bullet:
             vangle = math.atan2(-self.velocity[1], -self.velocity[0])
             self.velocity[0] = spd * math.cos(2 * normal - vangle)
             self.velocity[1] = spd * math.sin(2 * normal - vangle)
+            bounce = True
         d = dist(floorx, floory + 1, self.location[0], self.location[1])
         if d < self.radius and gmap.walls[ifloorx-1][ifloory+1]:
             self.location[0] += fracx * (self.radius / d - 1)
@@ -84,6 +91,7 @@ class Bullet:
             vangle = math.atan2(-self.velocity[1], -self.velocity[0])
             self.velocity[0] = spd * math.cos(2 * normal - vangle)
             self.velocity[1] = spd * math.sin(2 * normal - vangle)
+            bounce = True
         d = dist(floorx + 1, floory + 1, self.location[0], self.location[1])
         if d < self.radius and gmap.walls[ifloorx+1][ifloory+1]:
             self.location[0] -= (1 - fracx) * (self.radius / d - 1)
@@ -93,9 +101,12 @@ class Bullet:
             vangle = math.atan2(-self.velocity[1], -self.velocity[0])
             self.velocity[0] = spd * math.cos(2 * normal - vangle)
             self.velocity[1] = spd * math.sin(2 * normal - vangle)
+            bounce = True
         # Collision check, people
         for i, person in enumerate([gmap.hero] + gmap.units):
             distp = dist(person.location[0], person.location[1], self.location[0], self.location[1])
             if distp < self.radius + person.radius:
                 return i-1
+        if bounce:
+            self.bounces -= 1
         return False

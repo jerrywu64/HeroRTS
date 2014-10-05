@@ -91,7 +91,7 @@ def main_loop():
         for b in game_map.bullets:
             # Damage resolution is not done locally
             out = b.move(game_map)
-            if out is False:
+            if out is False and b.bounces >= 0:
                 new_bullets.append(b)
         game_map.bullets = new_bullets
         if character is None:

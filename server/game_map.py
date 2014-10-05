@@ -1,4 +1,6 @@
 import math
+import random
+from unit import Unit
 
 class Point:
     def __init__(self, x, y):
@@ -39,6 +41,32 @@ class GameMap:
             self.walls.append([])
             for r in xrange(rows):
                 self.walls[c].append(int(map[r * cols + c]))
+    
+    def generate_hostiles(self, num):
+        for i in xrange(num):
+            ifloorx = 0
+            ifloory = 0
+            x = 0
+            y = 0
+            while self.walls[ifloorx][ifloory] == 1:
+                x = 1 + random.random() * (self.cols - 1)
+                y = 1 + random.random() * (self.rows - 1)
+                ifloorx = int(x)
+                ifloory = int(y)
+            self.units.append(Unit(10, x, y, 0))
+            
+    def generate_friendlies(self, num):
+        for i in xrange(num):
+            ifloorx = 0
+            ifloory = 0
+            x = 0
+            y = 0
+            while self.walls[ifloorx][ifloory] == 1:
+                x = 1 + random.random() * (self.cols - 1)
+                y = 1 + random.random() * (self.rows - 1)
+                ifloorx = int(x)
+                ifloory = int(y)
+            self.units.append(Unit(10, x, y, 0, 0))
 
     def is_accessible(self, pt):
         cell = pt.floor()
