@@ -148,8 +148,8 @@ if __name__ == "__main__":
     mode = sys.argv[1]
         
     pygame.init()
-    # screen = pygame.display.set_mode((0,0), pygame.FULLSCREEN)
-    screen = pygame.display.set_mode((620,480))
+    screen = pygame.display.set_mode((0,0), pygame.FULLSCREEN)
+    # screen = pygame.display.set_mode((620,480))
 
     reactor.connectTCP(sys.argv[2], 9999, GameClientProtocolFactory())
     tick = task.LoopingCall(main_loop)
