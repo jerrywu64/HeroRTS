@@ -4,7 +4,7 @@ class GameMap:
         # 0 meaning no wall, 1 meaning wall, starting in the 
         # top left and going across first, then down.
         # The coordinate of a wall is the top left corner's cartesian coordinate.
-        self.walls = []
+        self.walls = [] # this will receive arrays as elements
         for r in xrange(rows):
             walls[r] = []
             for c in xrange(cols):
