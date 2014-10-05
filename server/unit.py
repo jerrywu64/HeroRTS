@@ -75,7 +75,7 @@ class Unit:
         if (x, y) in cmdr.pathfinders:
             return cmdr.pathfinders[(x, y)].next_cell(self.location)
         else:
-            cmdr[(x, y)] = BFSPathfinder(game_map, x, y, self.location[x], self.location[y])
+            cmdr[(x, y)] = BFSPathfinder(game_map, x, y, self.location[0], self.location[1])
     
     def turn(self, angle):
         self.orientation += angle
