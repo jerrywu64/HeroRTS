@@ -60,6 +60,11 @@ def draw_hero(screen, t, game_map):
                      t.transform_coord((hero.location[0]+orient_delta_x,
                                         hero.location[1]+orient_delta_y)), 3)
 
+COLOR_MAP = {
+    0: ((0, 100, 100), (0, 200, 200)),
+    1: ((200, 50, 0), (255, 60, 0)),
+    2: ((75, 0, 50), (50, 0, 25))
+}
 def draw_units(screen, t, game_map):
     """
     screen: PyGame surface
@@ -69,20 +74,20 @@ def draw_units(screen, t, game_map):
     # Draw units
     for unit in game_map.units:
         # Unit border
-        pygame.draw.circle(screen, (0, 100, 100), 
+        pygame.draw.circle(screen, COLOR_MAP[unit.type][0], 
                            t.transform_coord(unit.location),
                            t.transform_width(unit.CHARACTER_RADIUS
                                              + unit.CHARACTER_BORDER),
                            0)
         # Unit fill
-        pygame.draw.circle(screen, (0, 200, 200), 
+        pygame.draw.circle(screen, COLOR_MAP[unit.type][1], 
                            t.transform_coord(unit.location),
                            t.transform_width(unit.CHARACTER_RADIUS),
                            0)
         # Unit orientation
         orient_delta_x = math.cos(unit.orientation)*unit.CHARACTER_RADIUS
         orient_delta_y = -math.sin(unit.orientation)*unit.CHARACTER_RADIUS
-        pygame.draw.line(screen, (0, 100, 100),
+        pygame.draw.line(screen, COLOR_MAP[unit.type][0],
                          t.transform_coord(unit.location),
                          t.transform_coord((unit.location[0]+orient_delta_x,
                                             unit.location[1]+orient_delta_y)), 3)
