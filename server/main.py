@@ -12,6 +12,7 @@ done = False
 
 # Global game map
 game_map = None
+hero = None
 
 class GameProtocol(protocol.Protocol):
     def connectionMade(self):
@@ -35,10 +36,15 @@ class GameProtocol(protocol.Protocol):
                 "map": game_map.map_inp,
                 "rows": game_map.rows,
                 "cols": game_map.cols,
-                "people": [p.dictify() for p in game_map.people]
+                "hero": game_map.hero.dictify(),
+                "units": [u.dictify() for u in game_map.units]
             }) + "\n")
         elif json_data["message_type"] == "update":
-            print json_data
+            hero.location = json_data["location"]
+            hero.orientation = json_data["orientation"]
+            if json_data["fired"]:
+                # Do some shit
+                pass
         else:
             print "Unknown message type"
         
@@ -49,6 +55,8 @@ class GameProtocolFactory(protocol.Factory):
 
 def init():
     global game_map
+    global hero
+    hero = Hero(10, 11.0, 11.0, math.pi/2)
     game_map = GameMap(20, 20, [
         1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
         1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
@@ -70,7 +78,7 @@ def init():
         1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
         1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
         1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1
-        ], [Hero(10, 11.0, 11.0, math.pi/2), Unit(10, 1.5, 1.5, 0)])
+        ], hero, [Unit(10, 1.5, 1.5, 0)])
 
 def main_loop():
     # Handle stopped, and done

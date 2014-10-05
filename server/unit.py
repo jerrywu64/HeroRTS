@@ -76,7 +76,7 @@ class Unit:
                 self.location[1] -= (1 - fracy) * (self.radius / d - 1)
                 newcycles = cycles + 1
             # Collision check, people
-            for person in gmap.people:
+            for person in gmap.units + [gmap.hero]:
                 if person.location[0] != self.location[0] or person.location[1] != self.location[1]:
                     distp = dist(person.location[0], person.location[1], self.location[0], self.location[1])
                     if distp < self.radius + person.radius:

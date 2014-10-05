@@ -9,7 +9,7 @@ class Bullet:
         self.radius = radius
         self.bounces = bounces
         
-    # Returns the index (in gmap.people) of person collided with, or False if didn't hit anyone.
+    # Returns the index (in gmap.units) of person collided with, or -1 for hero, or False if didn't hit anyone.
     def move(self, gmap):
         self.location[0] += self.velocity[0]
         self.location[1] += self.velocity[1]
@@ -72,9 +72,8 @@ class Bullet:
             self.velocity[0] = spd * math.cos(2 * normal - vangle)
             self.velocity[1] = spd * math.sin(2 * normal - vangle)
         # Collision check, people
-        for i in xrange(len(gmap.people)):
-            person = gmap.people[i]
+        for i, person in enumerate([gmap.hero] + gmap.units):
             distp = dist(person.location[0], person.location[1], self.location[0], self.location[1])
             if distp < self.radius + person.radius:
-                return i
+                return i-1
         return False

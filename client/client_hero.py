@@ -128,9 +128,7 @@ class ClientHero(Character):
                                                  self.loc[1]+orient_delta_y)), 3)
 
         # Draw units
-        for unit in game_map.people:
-            # Skip the hero
-            if isinstance(unit, Hero): continue
+        for unit in game_map.units:
             # Unit border
             pygame.draw.circle(self.screen, (0, 100, 100), 
                                self.t.transform_coord(unit.location),

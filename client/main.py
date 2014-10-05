@@ -26,20 +26,12 @@ class GameClientProtocol(protocol.Protocol):
         if json_data["message_type"] == "hello":
             global recvd_hello
             recvd_hello = True
-            people = []
-            for p in json_data["people"]:
-                if p["type"] == "hero":
-                    global server_hero
-                    server_hero = Hero.from_dict(p)
-                    people.append(server_hero)
-                elif p["type"] == "unit":
-                    people.append(Unit.from_dict(p))
-                else:
-                    raise Exception("Unknown person type")
-            print "people:", people
+            units = [Unit.from_dict(u) for u in json_data["units"]]
+            global server_hero
+            server_hero = Hero.from_dict(json_data["hero"])
             global game_map
             game_map = GameMap(json_data["rows"], json_data["cols"],
-                               json_data["map"], people)
+                               json_data["map"], server_hero, units)
         elif json_data["message_type"] == "update":
             # TODO
             pass
