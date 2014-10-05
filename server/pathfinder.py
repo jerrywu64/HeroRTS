@@ -19,7 +19,7 @@ class DumbPathfinder(Pathfinder):
 
 class BFSPathfinder(Pathfinder):
     def __init__(self, map, destx, desty, currx, curry):
-        self.super().__init__(self, map, destx, desty, currx, curry)
+        Pathfinder.__init__(self, map, destx, desty, currx, curry)
         self.bfs()
     def bfs(self):
         self.distances = {self.dest.floor() : 0}
